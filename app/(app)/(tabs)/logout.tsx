@@ -7,7 +7,7 @@ export default function SignOutScreen() {
     return (
         <View style={styles.container}>
             <Text
-                style={styles.text}
+                style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, textAlign: 'center', textAlignVertical: 'center', width: 110, height: 40}}
                 onPress={() => {
                     // The `app/(app)/_layout.tsx` will redirect to the sign-in screen.
                     signOut();
