@@ -1,17 +1,34 @@
 package com.team3.FoodSaver.model;
 
-public class User {
-	private String name;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document("Users")
+public class User {	
+	@Id
+	public String id;
 	
-	public User(String name) {
-		this.name = name;
+	private String firstName;
+	private String lastName;
+	
+	public User(String firstName, String lastName) {
+		this.firstName = firstName;
+		this.lastName = lastName;
 	}
 	
-	public String getName() {
-		return this.name;
+	public String getFirstName() {
+		return firstName;
 	}
 	
-	public void setName(String name) {
-		this.name = name;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	
+	public String getLastName() {
+		return lastName;
+	}
+	
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 }

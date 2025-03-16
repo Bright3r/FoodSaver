@@ -1,13 +1,12 @@
 package com.team3.FoodSaver.repository;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+
 import com.team3.FoodSaver.model.User;
 
-@Repository
-public class UserRepository {
+public interface UserRepository extends MongoRepository<User, String> {
 
-	public String getUser() {
-		User user = new User("Test User");
-		return user.getName();
-	}
+	@Query("{name:'?0'}")
+	User findUserByName(String name);
 }
