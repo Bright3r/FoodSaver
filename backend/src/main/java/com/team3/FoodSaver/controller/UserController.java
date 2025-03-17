@@ -1,9 +1,12 @@
 package com.team3.FoodSaver.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.team3.FoodSaver.model.User;
@@ -12,17 +15,19 @@ import com.team3.FoodSaver.service.UserService;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-	
 	@Autowired
 	private UserService userService;
 	
 	@GetMapping
-	public String getUser() {
-		return "Test";
+	public User getUserByUsername(@RequestParam String username) {
+		return userService.getUserByUsername(username);
 	}
 	
 	@PostMapping
-	public void createUser() {
-		userService.createUser(new User("Chase", "Test"));
+	public ResponseEntity<String> createUser(@RequestBody User user) {
+		if (userService.createUser(user)) {
+			return ResponseEntity.ok("User created successfully!");
+		}
+		return ResponseEntity.badRequest().body("Failed to create user.");
 	}
 }

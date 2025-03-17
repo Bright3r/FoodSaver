@@ -12,8 +12,23 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepo;
 	
-	public void createUser(User user) {
-		userRepo.save(user);
-		System.out.println("Added new user: " + user);
+	public User getUserByUsername(String username) {
+		User user = userRepo.findUserByUsername(username);
+		
+		System.out.println("Found user: " + user);
+		return user;
+	}
+	
+	public boolean createUser(User user) {
+		try {
+			userRepo.save(user);
+			
+			System.out.println("Added new user: " + user);
+			return true;
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+			return false;
+		}
 	}
 }
