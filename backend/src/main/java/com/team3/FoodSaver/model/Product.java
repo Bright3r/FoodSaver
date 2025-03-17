@@ -1,6 +1,6 @@
 package com.team3.FoodSaver.model;
 
-import java.sql.Date;
+import java.util.Date;
 
 public class Product {
     private String name;
