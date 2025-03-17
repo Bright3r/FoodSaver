@@ -14,6 +14,10 @@ public class UserService {
 	
 	public User getUserByUsername(String username) {
 		User user = userRepo.findUserByUsername(username);
+		if (user == null) {
+			System.out.println("Could not find user: " + user);
+			return null;
+		}
 		
 		System.out.println("Found user: " + user);
 		return user;
@@ -27,6 +31,40 @@ public class UserService {
 			return true;
 		}
 		catch (Exception e) {
+			System.out.println(e.getMessage());
+			return false;
+		}
+	}
+	
+	public boolean deleteUserByUsername(String username) {
+		User user = getUserByUsername(username);
+		
+		try {
+			userRepo.delete(user);
+			
+			System.out.println("Deleted user: " + user);
+			return true;
+		}
+		catch (Exception e) {
+			System.out.println("Could not delete user: " + user);
+			System.out.println(e.getMessage());
+			return false;
+		}
+	}
+	
+	public boolean updateUser(User updatedUser) {
+		User oldUser = getUserByUsername(updatedUser.getUsername());
+		
+		try {
+			// assign updated user the same document id as old user's document
+			updatedUser.id = oldUser.id;
+			
+			// overwrite old user document with updated user
+			userRepo.save(updatedUser);
+			return true;
+		}
+		catch (Exception e) {
+			System.out.println("Could not update user: " + updatedUser);
 			System.out.println(e.getMessage());
 			return false;
 		}

@@ -2,8 +2,10 @@ package com.team3.FoodSaver.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,5 +31,21 @@ public class UserController {
 			return ResponseEntity.ok("User created successfully!");
 		}
 		return ResponseEntity.badRequest().body("Failed to create user.");
+	}
+	
+	@DeleteMapping
+	public ResponseEntity<String> deleteUser(@RequestParam String username) {
+		if (userService.deleteUserByUsername(username)) {
+			return ResponseEntity.ok("User deleted successfully!");
+		}
+		return ResponseEntity.badRequest().body("Failed to delete user.");
+	}
+	
+	@PutMapping
+	public ResponseEntity<String> updateUser(@RequestBody User updatedUser) {
+		if (userService.updateUser(updatedUser)) {
+			return ResponseEntity.ok("User updated successfully!");
+		}
+		return ResponseEntity.badRequest().body("Failed to update user.");
 	}
 }
