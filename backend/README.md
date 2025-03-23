@@ -27,3 +27,9 @@ curl -X PUT "http://localhost:8083/api/user" -H "Content-Type: application/json"
 
 **DELETE**
 curl -X DELETE "http://localhost:8083/api/user?username=user2"
+
+**SIGNUP**
+curl -X POST "http://localhost:8083/api/auth/signup" -H "Content-Type: application/json" -d '{"username": "NEW_USER", "password": "pass", "firstName": "New", "lastName": "User"}'
+
+**LOGIN**
+curl -X GET "http://localhost:8083/api/auth/login" -H "Content-Type: application/json" -d '{"username": "user1", "password": "password1"}'
