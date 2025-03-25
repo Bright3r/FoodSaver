@@ -1,29 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { useSession } from '../../ctx';
+import { useSession } from './ctx';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { RouteProp } from '@react-navigation/native';
+import { RootStackParams } from './RootStackParams';
+
+type IngredientRouteProp = RouteProp<RootStackParams, 'Ingredient'>;
 
 interface Ingredient {
     name:string;
     description:string;
     nutritionGrade:string;
-    ingredients:string[];
     imageUrl:string;
 }
 
+interface IngredientProps {
+    route: IngredientRouteProp;
+}
+
 const fetchIngredientData = async (productCode: number): Promise<Ingredient | null> => {
-    // Fetching data from API implementation here.
+    // Fetching item data from API.
     try {
-        const response = await fetch(`https://us.openfoodfacts.org/api/v0/product/01223004`); // PLACEHOLDER: use productCode
+        const response = await fetch(`https://us.openfoodfacts.org/api/v0/product/${productCode}`);
         const data = await response.json();
 
         if (data.status === 1 && data.product) {
             const product = data.product;
 
             return {
-                name: product.product_name,
+                name: product.product_name || "Unknown",
                 description: product.ingredients_text || "Unknown description",
                 nutritionGrade: product.nutrition_grades || "Unknown",
-                ingredients: product.ingredients || ["No ingredients"],
                 imageUrl: product.image_url || '',
             };
         } else {
@@ -35,29 +41,29 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
     }
 };
 
-export default function IngredientPage() {
-    const {session} = useSession(); // For storing ingredients
+export default function IngredientPage({ route }: IngredientProps) {
+    const {session} = useSession(); // For storing ingredients: implement this in the next sprint.
     const [ingredient, setIngredient] = useState<Ingredient | null>(null);
-    const [productCode, setProductCode] = useState<number>(0); // Number placeholder
     const [loading, setLoading] = useState<boolean>(false);
+    const { scannedData } = route.params;
     // Add user inventory funct here.
 
     useEffect(() => {
         const getIngredient = async () => {
             setLoading(true);
-            const fetchedIngredient = await fetchIngredientData(productCode);
+            const fetchedIngredient = await fetchIngredientData(parseInt(scannedData, 10));
             setIngredient(fetchedIngredient);
             setLoading(false);
         };
 
         getIngredient();
-    }, [productCode])
+    }, [scannedData])
 
     return(
         <View style={styles.container}>
             {loading ? (
                 <Text style={styles.text}>Loading...</Text>
-            ) : ingredient ? ( // Include more info
+            ) : ingredient ? ( // Include more info..?
                 <>
                     <Text style={styles.name}>{ingredient.name}</Text>
                     <Image source={{ uri: ingredient.imageUrl }} style={styles.image} />

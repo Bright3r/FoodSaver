@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
+import { StackNavigationProp } from '@react-navigation/stack';
 import { CameraView, Camera } from "expo-camera";
+import { RootStackParams } from '../../RootStackParams';
 
-export default function Scanner() {
+type ScannerNavProp = StackNavigationProp<RootStackParams, 'Scanner'>;
+
+interface ScannerProps {
+  navigation: ScannerNavProp;
+}
+
+export default function Scanner({ navigation }: ScannerProps) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState<string | null>(null);
+  const [scannedType, setScannedType] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
 
   useEffect(() => {
@@ -20,7 +29,10 @@ export default function Scanner() {
   const handleBarcodeScanned = ({ type, data }: { type: string; data: string }) => {
     setScanned(true);
     setScannedData(data);
+    setScannedType(type);
     alert(`Scanned barcode type: ${type}\nData: ${data}`);
+
+    navigation.navigate('Ingredient', { scannedData: data, scannedType: type });
   };
 
   if (hasPermission === null) {
@@ -58,7 +70,9 @@ export default function Scanner() {
           <View style={styles.buttonContainer}>
             {scanned ? (
               <>
-                <Text style={styles.scannedText}>Scanned Data: {scannedData}</Text>
+                <Text style={styles.scannedText}>
+                    Scanned Data: {scannedData}
+                </Text>
                 <Button title="Scan Again" onPress={() => setScanned(false)} />
               </>
             ) : (
