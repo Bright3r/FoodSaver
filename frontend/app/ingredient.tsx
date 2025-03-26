@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from './ctx';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, Button } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from './RootStackParams';
 
 type IngredientRouteProp = RouteProp<RootStackParams, 'Ingredient'>;
+type IngredientNavProp = StackNavigationProp<RootStackParams, 'Ingredient'>;
 
 interface Ingredient {
     name:string;
@@ -15,6 +17,7 @@ interface Ingredient {
 
 interface IngredientProps {
     route: IngredientRouteProp;
+    navigation: IngredientNavProp;
 }
 
 const fetchIngredientData = async (productCode: number): Promise<Ingredient | null> => {
@@ -41,7 +44,7 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
     }
 };
 
-export default function IngredientPage({ route }: IngredientProps) {
+export default function IngredientPage({ route, navigation }: IngredientProps) {
     const {session} = useSession(); // For storing ingredients: implement this in the next sprint.
     const [ingredient, setIngredient] = useState<Ingredient | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -69,6 +72,10 @@ export default function IngredientPage({ route }: IngredientProps) {
                     <Image source={{ uri: ingredient.imageUrl }} style={styles.image} />
                     <Text style={styles.description}>{ingredient.description}</Text>
                     <Text style={styles.nutritionGrade}>{ingredient.nutritionGrade}</Text>
+                    <Button
+                        title="Back"
+                        onPress={() => navigation.goBack()}
+                    />
                 </>
             ) : (
                 <Text style={styles.name}>No ingredient.</Text>

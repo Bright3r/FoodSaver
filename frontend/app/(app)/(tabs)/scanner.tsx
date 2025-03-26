@@ -70,9 +70,6 @@ export default function Scanner({ navigation }: ScannerProps) {
           <View style={styles.buttonContainer}>
             {scanned ? (
               <>
-                <Text style={styles.scannedText}>
-                    Scanned Data: {scannedData}
-                </Text>
                 <Button title="Scan Again" onPress={() => setScanned(false)} />
               </>
             ) : (
