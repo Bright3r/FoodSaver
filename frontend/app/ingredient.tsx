@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from './ctx';
 import { View, Text, StyleSheet, Image, Button } from 'react-native';
-import {useRouter, useLocalSearchParams} from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from './RootStackParams';

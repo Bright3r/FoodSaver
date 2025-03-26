@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
 import { CameraView, Camera } from "expo-camera";
-import {useRouter} from 'expo-router';
+import { useRouter } from 'expo-router';
 
 export default function Scanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -23,7 +23,7 @@ export default function Scanner() {
   const handleBarcodeScanned = ({ type, data }: { type: string; data: string }) => {
     setScanned(true);
     setScannedData(data);
-    alert(`Scanned barcode type: ${type}\nData: ${data}`);
+    console.log(`Scanned barcode type: ${type}\nData: ${data}`);
 
     router.push({
       pathname: '/ingredient',
