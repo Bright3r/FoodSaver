@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from './ctx';
 import { View, Text, StyleSheet, Image, Button } from 'react-native';
+import {useRouter, useLocalSearchParams} from 'expo-router';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParams } from './RootStackParams';
@@ -44,17 +45,19 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
     }
 };
 
-export default function IngredientPage({ route, navigation }: IngredientProps) {
+export default function IngredientPage() {
     const {session} = useSession(); // For storing ingredients: implement this in the next sprint.
     const [ingredient, setIngredient] = useState<Ingredient | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const { scannedData } = route.params;
+    const { scannedData } = useLocalSearchParams();
+    const parsedScannedData = scannedData ? parseInt(scannedData as string) : NaN;
+    const router = useRouter();
     // Add user inventory funct here.
 
     useEffect(() => {
         const getIngredient = async () => {
             setLoading(true);
-            const fetchedIngredient = await fetchIngredientData(parseInt(scannedData, 10));
+            const fetchedIngredient = await fetchIngredientData(parsedScannedData);
             setIngredient(fetchedIngredient);
             setLoading(false);
         };
@@ -72,10 +75,7 @@ export default function IngredientPage({ route, navigation }: IngredientProps) {
                     <Image source={{ uri: ingredient.imageUrl }} style={styles.image} />
                     <Text style={styles.description}>{ingredient.description}</Text>
                     <Text style={styles.nutritionGrade}>{ingredient.nutritionGrade}</Text>
-                    <Button
-                        title="Back"
-                        onPress={() => navigation.goBack()}
-                    />
+                    <Button title="Back" onPress={() => router.back()}/>
                 </>
             ) : (
                 <Text style={styles.name}>No ingredient.</Text>
@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 24,
         fontWeight: 'bold',
+        color: '#ffffff',
         marginBottom: 10,
     },
     image: {
@@ -105,6 +106,7 @@ const styles = StyleSheet.create({
     description: {
         fontSize: 16,
         fontWeight: 'normal',
+        color: '#ffffff',
         marginBottom: 10,
         textAlign: 'center'
     },
@@ -113,11 +115,6 @@ const styles = StyleSheet.create({
         color: 'green',
         fontWeight: 'bold',
         marginBottom: 10,
-    },
-    ingredients: {
-        fontSize: 16,
-        marginBottom: 10,
-        textAlign: 'center',
     },
     text: {
         fontSize: 18,

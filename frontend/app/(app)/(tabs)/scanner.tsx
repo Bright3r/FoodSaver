@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
-import { StackNavigationProp } from '@react-navigation/stack';
 import { CameraView, Camera } from "expo-camera";
-import { RootStackParams } from '../../RootStackParams';
+import {useRouter} from 'expo-router';
 
-type ScannerNavProp = StackNavigationProp<RootStackParams, 'Scanner'>;
-
-interface ScannerProps {
-  navigation: ScannerNavProp;
-}
-
-export default function Scanner({ navigation }: ScannerProps) {
+export default function Scanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState<string | null>(null);
-  const [scannedType, setScannedType] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     const getCameraPermissions = async () => {
@@ -29,10 +23,12 @@ export default function Scanner({ navigation }: ScannerProps) {
   const handleBarcodeScanned = ({ type, data }: { type: string; data: string }) => {
     setScanned(true);
     setScannedData(data);
-    setScannedType(type);
     alert(`Scanned barcode type: ${type}\nData: ${data}`);
 
-    navigation.navigate('Ingredient', { scannedData: data, scannedType: type });
+    router.push({
+      pathname: '/ingredient',
+      params: { scannedData: data },
+    });
   };
 
   if (hasPermission === null) {
@@ -69,9 +65,7 @@ export default function Scanner({ navigation }: ScannerProps) {
           />
           <View style={styles.buttonContainer}>
             {scanned ? (
-              <>
                 <Button title="Scan Again" onPress={() => setScanned(false)} />
-              </>
             ) : (
               <Button title="Close Scanner" onPress={() => setCameraActive(false)} />
             )}
