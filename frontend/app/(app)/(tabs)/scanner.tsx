@@ -11,6 +11,8 @@ export default function Scanner() {
 
   const router = useRouter();
 
+  let scanSuccess = false;
+
   useEffect(() => {
     const getCameraPermissions = async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -20,15 +22,22 @@ export default function Scanner() {
     getCameraPermissions();
   }, []);
 
-  const handleBarcodeScanned = ({ type, data }: { type: string; data: string }) => {
+  async function handleBarcodeScanned ({ type, data }: { type: string; data: string }) {
+    if (scanSuccess) return;
+    scanSuccess = true;
+
     setScanned(true);
     setScannedData(data);
+    setCameraActive(false);
+
     console.log(`Scanned barcode type: ${type}\nData: ${data}`);
 
     router.push({
       pathname: '/ingredient',
       params: { scannedData: data },
     });
+
+    setTimeout(() => scanSuccess = false, 1000);
   };
 
   if (hasPermission === null) {
@@ -63,13 +72,6 @@ export default function Scanner() {
               ],
             }}
           />
-          <View style={styles.buttonContainer}>
-            {scanned ? (
-                <Button title="Scan Again" onPress={() => setScanned(false)} />
-            ) : (
-              <Button title="Close Scanner" onPress={() => setCameraActive(false)} />
-            )}
-          </View>
         </>
       )}
     </View>

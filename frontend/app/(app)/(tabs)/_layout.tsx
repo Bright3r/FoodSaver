@@ -37,20 +37,11 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="Scanner"
+                name="scanner"
                 options={{
                     title: 'Scanner',
                     tabBarIcon: ({ color, focused }) => (
                         <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} color={color} size={24}/>
-                    ),
-                }}
-            />
-            <Tabs.Screen // DEBUGGING ONLY. Move out of (tabs) after UI is implemented.
-                name="ingredient"
-                options={{
-                    title: 'Ingredient',
-                    tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'document' : 'document-outline'} color={color} size={24}/>
                     ),
                 }}
             />

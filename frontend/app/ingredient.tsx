@@ -2,23 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from './ctx';
 import { View, Text, StyleSheet, Image, Button } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParams } from './RootStackParams';
-
-type IngredientRouteProp = RouteProp<RootStackParams, 'Ingredient'>;
-type IngredientNavProp = StackNavigationProp<RootStackParams, 'Ingredient'>;
 
 interface Ingredient {
     name:string;
     description:string;
     nutritionGrade:string;
     imageUrl:string;
-}
-
-interface IngredientProps {
-    route: IngredientRouteProp;
-    navigation: IngredientNavProp;
 }
 
 const fetchIngredientData = async (productCode: number): Promise<Ingredient | null> => {
@@ -78,7 +67,10 @@ export default function IngredientPage() {
                     <Button title="Back" onPress={() => router.back()}/>
                 </>
             ) : (
-                <Text style={styles.name}>No ingredient.</Text>
+                <>
+                    <Text style={styles.name}>Unknown ingredient.</Text>
+                    <Button title="Back" onPress={() => router.back()}/>
+                </>
             )}
         </View>
     );
