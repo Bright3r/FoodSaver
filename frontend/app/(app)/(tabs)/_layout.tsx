@@ -41,7 +41,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Scanner',
                     tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} color={color} size={24}/>
+                        <Ionicons name={focused ? 'camera' : 'camera-outline'} color={color} size={24}/>
                     ),
                 }}
             />
