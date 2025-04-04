@@ -47,10 +47,7 @@ export default function SignIn() {
                     //     ToastAndroid.show('Invalid Password',ToastAndroid.SHORT);
                     //     return;
                     // }
-                    signIn();
-                    // Navigate after signing in. You may want to tweak this to ensure sign-in is
-                    // successful before navigating.
-                    router.replace('/');
+                    signIn(username,password);
                 }}>
                 Login
             </Text>

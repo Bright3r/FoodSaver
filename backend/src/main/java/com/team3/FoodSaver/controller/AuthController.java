@@ -19,7 +19,7 @@ public class AuthController {
 	@Autowired
 	UserService userService;
 
-	@GetMapping("/login")
+	@PostMapping("/login")
 	public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
 		// Find user in database
 		User user = userService.getUserByUsername(loginRequest.username());
