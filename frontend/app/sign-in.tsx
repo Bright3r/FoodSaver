@@ -36,17 +36,6 @@ export default function SignIn() {
             <Text
                 style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, textAlign: 'center', textAlignVertical: 'center', width: 110, height: 40, marginBottom: 10}}
                 onPress={() => {
-                    //check username and password against the database
-                    //go to the rest of the app if able to login
-                    // if(this.state.username.localeCompare('demo')!=0){
-                    //     ToastAndroid.show('Invalid UserName',ToastAndroid.SHORT);
-                    //     return;
-                    // }
-                    //
-                    // if(this.state.password.localeCompare('demo')!=0){
-                    //     ToastAndroid.show('Invalid Password',ToastAndroid.SHORT);
-                    //     return;
-                    // }
                     signIn(username,password);
                 }}>
                 Login

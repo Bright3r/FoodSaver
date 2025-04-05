@@ -43,7 +43,7 @@ export default function SignUp() {
                 Sign Up
             </Text>
             <TextInput
-                style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, margin: 20, width: 250, height: 50}}
+                style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, margin: 10, width: 250, height: 50}}
                 placeholder="First Name"
                 placeholderTextColor="#ffffff"
                 onChangeText={val => setFirstname(val)}
@@ -55,7 +55,7 @@ export default function SignUp() {
                 onChangeText={val => setLastname(val)}
             />
             <TextInput
-                style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginBottom: 20, width: 250, height: 50}}
+                style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginBottom: 10, width: 250, height: 50}}
                 placeholder="Username"
                 placeholderTextColor="#ffffff"
                 onChangeText={val => setUsername(val)}
@@ -67,22 +67,31 @@ export default function SignUp() {
                 placeholderTextColor="#ffffff"
                 onChangeText={val => setPassword(val)}
             />
-            <Text
-                style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, textAlign: 'center', textAlignVertical: 'center', width: 110, height: 40}}
-                onPress={() => {
-                    //username and password checking handled on the frontend
-                    if(username=="") {
-                        console.error('Signup failed: No Username');
-                    }
-                    else if(password=="") {
-                        console.error('Signup failed: No Password');
-                    }
-                    else {
-                        handleSubmit(firstname, lastname, username, password);
-                    }
-                }}>
-                Create Account
-            </Text>
+            <View style={{flex: 1, flexDirection:'row'}}>
+                <Text
+                    style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginRight: 10, textAlign: 'center', textAlignVertical: 'center', width: 110, height: 40}}
+                    onPress={() => {
+                        router.replace('/sign-in');
+                    }}>
+                    Cancel
+                </Text>
+                <Text
+                    style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, textAlign: 'center', textAlignVertical: 'center', width: 110, height: 40}}
+                    onPress={() => {
+                        //username and password checking handled on the frontend
+                        if(username=="") {
+                            console.error('Signup failed: No Username');
+                        }
+                        else if(password=="") {
+                            console.error('Signup failed: No Password');
+                        }
+                        else {
+                            handleSubmit(firstname, lastname, username, password).then();
+                        }
+                    }}>
+                    Create Account
+                </Text>
+            </View>
         </View>
     );
 }
