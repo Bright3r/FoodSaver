@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, Button } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { CameraView, Camera } from "expo-camera";
 import { useRouter } from 'expo-router';
 
@@ -7,7 +7,7 @@ export default function Scanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState<string | null>(null);
-  const [cameraActive, setCameraActive] = useState(false);
+  const [cameraActive, setCameraActive] = useState(true); // Set to true so camera starts automatically
 
   const router = useRouter();
 
@@ -49,30 +49,26 @@ export default function Scanner() {
 
   return (
     <View style={styles.container}>
-      {!cameraActive ? (
-        <Button title="Open Scanner" onPress={() => setCameraActive(true)} />
-      ) : (
-        <>
-          <CameraView
-            style={StyleSheet.absoluteFillObject}
-            facing="back"
-            onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
-            barcodeScannerSettings={{
-              barcodeTypes: [
-                "qr",
-                "ean13",
-                "ean8",
-                "upc_a",
-                "upc_e",
-                "code128",
-                "code39",
-                "code93",
-                "itf14",
-                "pdf417",
-              ],
-            }}
-          />
-        </>
+      {cameraActive && (
+        <CameraView
+          style={StyleSheet.absoluteFillObject}
+          facing="back"
+          onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+          barcodeScannerSettings={{
+            barcodeTypes: [
+              "qr",
+              "ean13",
+              "ean8",
+              "upc_a",
+              "upc_e",
+              "code128",
+              "code39",
+              "code93",
+              "itf14",
+              "pdf417",
+            ],
+          }}
+        />
       )}
     </View>
   );
@@ -82,13 +78,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-  },
-  buttonContainer: {
-    position: "absolute",
-    bottom: 50,
-    left: 0,
-    right: 0,
     alignItems: "center",
   },
   scannedText: {
