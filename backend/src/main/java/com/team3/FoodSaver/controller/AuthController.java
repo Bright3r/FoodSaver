@@ -3,7 +3,7 @@ package com.team3.FoodSaver.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +19,7 @@ public class AuthController {
 	@Autowired
 	UserService userService;
 
+	@CrossOrigin(origins = "*")
 	@PostMapping("/login")
 	public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
 		// Find user in database
@@ -33,6 +34,7 @@ public class AuthController {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
 	}
 	
+	@CrossOrigin(origins = "*")
 	@PostMapping("/signup")
 	public ResponseEntity<Object> signup(@RequestBody SignupRequest signupRequest) {
 		// Check if user already exists
