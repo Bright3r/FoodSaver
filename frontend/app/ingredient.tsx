@@ -47,19 +47,84 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
 };
 
 
-// IP seems to be having issues. Implement this function later.
-const saveIngredient = async(username:string): Promise<void> => {
+const saveIngredient = async(username:string | null | undefined,  
+    ingredient:Ingredient): Promise<void> => {
     try {
         const uri =
-            Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8081') ??
+            Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
             '192.168.0.44:8083';
+        const response = await fetch(`http://${uri}/api/user?username=${username}`, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'}
+        })
+
+        console.log(response.status);
+        console.log(`OK? ${response.ok}`);
+        console.log(`Username: ${username}`);
+        
+        if (response.ok) {
+            const responseData = await response.json();
+            let responseStr = JSON.stringify(responseData);
+            console.log(`Response Data: ${responseStr}`);
+
+            const today = new Date();
+            const expr = new Date(today.getFullYear(), today.getMonth(),
+                today.getDate() + 7);
+
+            console.log(`Updating inventory...`);
+            let updatedData = JSON.parse(responseStr);
+            let objInventory = updatedData['inventory'];
+            
+            const dupe = objInventory.find((item: { 
+                name: string,
+                qty: number,
+                purchaseDate: Date,
+                expirationDate: Date
+            }) => {
+                if (item.name === ingredient.name) {
+                    item.qty += 1;
+                    return true;
+                }
+            });
+
+            if (typeof dupe === 'undefined') {
+                updatedData['inventory'].push({
+                    name: ingredient.name,
+                    qty: 1,
+                    purchaseDate: today, // User should be able to set their own purchase date.
+                    expirationDate: expr // User should be able to set their own expiration date.
+                });
+            }
+
+            console.log(`Item added: ${ingredient.name}`);
+            console.log(`${username}'s inventory: ${JSON.stringify(updatedData['inventory'])}`);
+
+            const response2 = await fetch(`http://${uri}/api/user`, {
+                method: 'PUT',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(updatedData)
+            })
+
+            console.log(response2.status);
+            console.log(`OK? ${response2.ok}`);
+
+            if (response2.ok) {
+                console.log(`${username}'s inventory successfully updated`);
+                alert("Item added to inventory!");
+            } else {
+                console.error("Failed to save item", await response.text());
+            }
+        } else {
+            console.error('Failed to save item', await response.text());
+        }
+
     } catch (error) {
-        console.error("Error: item failed to save.", error);
+        console.error("Failed to save item", error);
     }
 };
 
 export default function IngredientPage() {
-    const {session} = useSession(); // For storing ingredients: implement this in the next sprint.
+    const {session} = useSession(); // For storing ingredients: implement this
     const [ingredient, setIngredient] = useState<Ingredient | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const { scannedData } = useLocalSearchParams();
@@ -67,7 +132,6 @@ export default function IngredientPage() {
     const [itemDesc, setItemDesc] = useState('');
     const parsedScannedData = scannedData ? parseInt(scannedData as string) : NaN;
     const router = useRouter();
-    // Add user inventory funct here.
 
     useEffect(() => {
         const getIngredient = async () => {
@@ -135,7 +199,7 @@ export default function IngredientPage() {
                             style={styles.button}
                             onPress={() => {
                                 // Implement inventory functionality.
-                                console.log("Save not implemented yet.");
+                                saveIngredient(session, ingredient);
                             }}
                         >
                             Save
