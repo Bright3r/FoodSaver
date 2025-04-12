@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { useSession } from '../../ctx';
 import Constants from 'expo-constants';
+import {StatusBar} from "expo-status-bar";
 
 
 
@@ -38,6 +39,7 @@ export default function Inventory() {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Inventory</Text>
+            <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
     );
 }

@@ -17,6 +17,8 @@ export default function TabLayout() {
                     backgroundColor: '#000000',
                 },
             }}
+            initialRouteName={"recipes"}
+            backBehavior={"history"}
         >
             <Tabs.Screen
                 name="index"
@@ -42,6 +44,15 @@ export default function TabLayout() {
                     title: 'Scanner',
                     tabBarIcon: ({ color, focused }) => (
                         <Ionicons name={focused ? 'camera' : 'camera-outline'} color={color} size={24}/>
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="recipes"
+                options={{
+                    title: 'Recipes',
+                    tabBarIcon: ({ color, focused }) => (
+                        <Ionicons name={focused ? 'book' : 'book-outline'} color={color} size={24}/>
                     ),
                 }}
             />

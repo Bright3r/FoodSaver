@@ -1,8 +1,7 @@
 import {useSession} from "@/app/ctx";
-import React, {useEffect, useState} from "react";
-import {router, useLocalSearchParams, useRouter} from "expo-router";
-import {Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View} from "react-native";
-import Constants from "expo-constants";
+import React, {useState} from "react";
+import {router, useRouter} from "expo-router";
+import {ScrollView, StyleSheet, Text, TextInput, View} from "react-native";
 import {StatusBar} from "expo-status-bar";
 
 const saveRecipe = async(username:string | null | undefined, recipeName:string, recipeDescription:string): Promise<void> => {

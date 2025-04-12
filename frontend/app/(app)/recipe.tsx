@@ -1,7 +1,6 @@
-import {useSession} from "@/app/ctx";
-import React, {useEffect, useState} from "react";
-import {router, useLocalSearchParams, useRouter} from "expo-router";
-import {Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View} from "react-native";
+import React from "react";
+import {useLocalSearchParams, useRouter} from "expo-router";
+import {StyleSheet, Text, View} from "react-native";
 import {ScrollView} from "react-native";
 import {StatusBar} from "expo-status-bar";
 

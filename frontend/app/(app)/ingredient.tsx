@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSession } from './ctx';
+import { useSession } from '../ctx';
 import { 
     View, 
     Text, 
@@ -14,6 +14,7 @@ import {
 import {useRouter, useLocalSearchParams, router} from 'expo-router';
 import Constants from 'expo-constants';
 import { ScrollView } from 'react-native-gesture-handler';
+import {StatusBar} from "expo-status-bar";
 
 interface Ingredient {
     name:string;
@@ -111,7 +112,7 @@ const saveIngredient = async(username:string | null | undefined,
             if (response2.ok) {
                 console.log(`${username}'s inventory successfully updated`);
                 alert("Item added to inventory!");
-                router.replace('/inventory')
+                router.replace('/inventory');
             } else {
                 console.error("Failed to save item", await response.text());
             }
@@ -205,23 +206,14 @@ export default function IngredientPage() {
                         >
                             Save
                         </Text>
-                        <Text
-                            style={styles.button}
-                            onPress={() => router.replace('/scanner')}>
-                            Back
-                        </Text>
                     </View>
                 </>
             ) : (
                 <>
                     <Text style={styles.name}>Unknown ingredient.</Text>
-                    <Text
-                        style={styles.button}
-                        onPress={() => router.replace('/scanner')}>
-                        Back
-                    </Text>
                 </>
             )}
+            <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
     );
 }
@@ -302,6 +294,7 @@ const styles = StyleSheet.create({
     buttonContainer: {
         height: 150,
         padding: 5
+
     },
     button: {
        color: '#fff',
@@ -316,6 +309,7 @@ const styles = StyleSheet.create({
        left: 0,
        right: 0,
        padding: 10,
+        marginBottom: 10
     },
     text: {
         fontSize: 18,

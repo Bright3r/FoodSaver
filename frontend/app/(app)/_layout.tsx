@@ -2,6 +2,7 @@ import { Text } from 'react-native';
 import { Redirect, Stack } from 'expo-router';
 
 import { useSession } from '../ctx';
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function AppLayout() {
     const { session, isLoading } = useSession();
@@ -21,9 +22,37 @@ export default function AppLayout() {
 
     // This layout can be deferred because it's not the root layout.
     return (
-        <Stack>
+        <Stack
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: '#000000',
+                },
+                headerShadowVisible: false,
+                headerTintColor: '#fff',
+            }}
+        >
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
+            <Stack.Screen
+                name="+not-found"
+            />
+            <Stack.Screen
+                name="addrecipe"
+                options={{
+                    title: 'Add Recipe',
+                }}
+            />
+            <Stack.Screen
+                name="ingredient"
+                options={{
+                    title: 'Add Ingredient',
+                }}
+            />
+            <Stack.Screen
+                name="recipe"
+                options={{
+                    title: 'Recipe',
+                }}
+            />
         </Stack>
     );
 }

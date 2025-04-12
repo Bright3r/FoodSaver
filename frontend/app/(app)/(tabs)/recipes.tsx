@@ -1,6 +1,5 @@
 import {Text, View, StyleSheet, FlatList, TextInput} from 'react-native';
 import { useSession } from '@/app/ctx';
-import Constants from "expo-constants";
 import {router} from "expo-router";
 import React from "react";
 import { StatusBar } from 'expo-status-bar';

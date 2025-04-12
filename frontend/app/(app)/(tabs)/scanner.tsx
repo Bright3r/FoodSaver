@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { CameraView, Camera } from "expo-camera";
 import { useRouter } from 'expo-router';
+import {StatusBar} from "expo-status-bar";
 
 export default function Scanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -26,9 +27,9 @@ export default function Scanner() {
     if (scanSuccess) return;
     scanSuccess = true;
 
-    setScanned(true);
+    //setScanned(true);
     setScannedData(data);
-    setCameraActive(false);
+    //setCameraActive(false);
 
     console.log(`Scanned barcode type: ${type}\nData: ${data}`);
 
@@ -70,6 +71,7 @@ export default function Scanner() {
           }}
         />
       )}
+      <StatusBar style="light" backgroundColor={"#000000"}/>
     </View>
   );
 }
