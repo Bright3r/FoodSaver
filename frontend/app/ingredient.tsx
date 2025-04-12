@@ -11,7 +11,7 @@ import {
     Platform,
     Dimensions, 
     KeyboardAvoidingView } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import {useRouter, useLocalSearchParams, router} from 'expo-router';
 import Constants from 'expo-constants';
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -111,6 +111,7 @@ const saveIngredient = async(username:string | null | undefined,
             if (response2.ok) {
                 console.log(`${username}'s inventory successfully updated`);
                 alert("Item added to inventory!");
+                router.replace('/inventory')
             } else {
                 console.error("Failed to save item", await response.text());
             }
@@ -206,7 +207,7 @@ export default function IngredientPage() {
                         </Text>
                         <Text
                             style={styles.button}
-                            onPress={() => router.back()}>
+                            onPress={() => router.replace('/scanner')}>
                             Back
                         </Text>
                     </View>
@@ -216,7 +217,7 @@ export default function IngredientPage() {
                     <Text style={styles.name}>Unknown ingredient.</Text>
                     <Text
                         style={styles.button}
-                        onPress={() => router.back()}>
+                        onPress={() => router.replace('/scanner')}>
                         Back
                     </Text>
                 </>
