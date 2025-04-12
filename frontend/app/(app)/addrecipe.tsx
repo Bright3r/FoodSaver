@@ -31,15 +31,13 @@ const saveRecipe = async(username:string | null | undefined, recipeName:string, 
     // } catch (error) {
     //     console.error("Failed to save recipe", error);
     // }
-    //router.replace('/recipes')
-    router.navigate('/recipes')
+    router.replace('/recipes');
 };
 
 export default function AddRecipePage() {
     const {session} = useSession();
     const [recipeName, setRecipeName] = useState('');
     const [recipeDesc, setRecipeDesc] = useState('');
-    const router = useRouter();
 
 
 
