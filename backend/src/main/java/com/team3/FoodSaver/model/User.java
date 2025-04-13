@@ -16,6 +16,7 @@ public class User {
 	private String firstName;
 	private String lastName;
 	private List<Product> inventory;
+	private List<Recipe> recipes;
 	
 	public User() {
 		
@@ -27,14 +28,16 @@ public class User {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.inventory = new ArrayList<>();
+		this.recipes = new ArrayList<>();
 	}
 	
-	public User(String username, String password, String firstName, String lastName, List<Product> inventory) {
+	public User(String username, String password, String firstName, String lastName, List<Product> inventory, List<Recipe> recipes) {
 		this.username = username;
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.inventory = inventory;
+		this.recipes = recipes;
 	}
 	
 	public String getUsername() {
@@ -75,6 +78,14 @@ public class User {
 	
 	public void setInventory(List<Product> inventory) {
 		this.inventory = inventory;
+	}
+	
+	public List<Recipe> getRecipes() {
+		return recipes;
+	}
+	
+	public void setRecipes(List<Recipe> recipes) {
+		this.recipes = recipes;
 	}
 	
 	@Override

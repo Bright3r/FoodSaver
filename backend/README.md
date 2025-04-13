@@ -10,6 +10,7 @@ Create a .env file under "src/main/resources", and enter the following:
 - PORT=8083
 - DB_URI=mongodb+srv://<db_username>:<db_password>@<cluster>
 - DB_NAME=foodsaver
+- OPENAI_API_KEY=<openai_api_key>
 
 The .env variables must be filled out for your local environment and MongoDB cluster. The DB_URI is located on MongoDB Atlas after creating a new cluster for this project.
 
@@ -33,3 +34,6 @@ curl -X POST "http://localhost:8083/api/auth/signup" -H "Content-Type: applicati
 
 **LOGIN**
 curl -X POST "http://localhost:8083/api/auth/login" -H "Content-Type: application/json" -d '{"username": "user1", "password": "password1"}'
+
+**RECIPE CREATION**
+curl -X GET "http://localhost:8083/api/recipe/search" -H "Content-Type: application/json" -d '{"ingredients": "eggs, beans, cheese"}'
