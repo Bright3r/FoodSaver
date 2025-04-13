@@ -17,6 +17,7 @@ import com.team3.FoodSaver.service.UserService;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
+	
 	@Autowired
 	private UserService userService;
 	
@@ -34,8 +35,8 @@ public class UserController {
 	}
 	
 	@DeleteMapping
-	public ResponseEntity<String> deleteUser(@RequestParam String username) {
-		if (userService.deleteUserByUsername(username)) {
+	public ResponseEntity<String> deleteUser(@RequestBody User userToDelete) {
+		if (userService.authenticateUser(userToDelete) && userService.deleteUserByUsername(userToDelete.getUsername())) {
 			return ResponseEntity.ok("User deleted successfully!");
 		}
 		return ResponseEntity.badRequest().body("Failed to delete user.");
@@ -43,7 +44,7 @@ public class UserController {
 	
 	@PutMapping
 	public ResponseEntity<String> updateUser(@RequestBody User updatedUser) {
-		if (userService.updateUser(updatedUser)) {
+		if (userService.authenticateUser(updatedUser) && userService.updateUser(updatedUser)) {
 			return ResponseEntity.ok("User updated successfully!");
 		}
 		return ResponseEntity.badRequest().body("Failed to update user.");

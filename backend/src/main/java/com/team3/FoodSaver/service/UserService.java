@@ -69,4 +69,20 @@ public class UserService {
 			return false;
 		}
 	}
+	
+	public boolean authenticateUser(User unauthenticatedUser) {
+		User user = getUserByUsername(unauthenticatedUser.getUsername());
+		
+		// User does not exist
+		if (user == null) {
+			return false;
+		}
+		// User password is incorrect
+		else if (!unauthenticatedUser.getPassword().equals(user.getPassword())) {
+			return false;
+		}
+		
+		// User is authenticated
+		return true;
+	}
 }
