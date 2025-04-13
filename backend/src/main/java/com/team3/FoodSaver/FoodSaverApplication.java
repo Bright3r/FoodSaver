@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import com.team3.FoodSaver.model.Product;
 import com.team3.FoodSaver.model.Recipe;
 import com.team3.FoodSaver.model.User;
-import com.team3.FoodSaver.repository.UserRepository;
+import com.team3.FoodSaver.service.UserService;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -21,7 +21,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 @EnableMongoRepositories
 public class FoodSaverApplication implements CommandLineRunner {
 	@Autowired
-	UserRepository userRepo;
+	UserService userService;
 	
 	public static void main(String[] args) {
 		// Load environment variables
@@ -36,7 +36,7 @@ public class FoodSaverApplication implements CommandLineRunner {
 
 	public void run(String... args) {
 		// Reset database
-		userRepo.deleteAll();
+		userService.deleteAll();
 		
         // Create test dates
         Date purchaseDate = new Date(System.currentTimeMillis()); // Today's date
@@ -64,34 +64,34 @@ public class FoodSaverApplication implements CommandLineRunner {
         inventory.add(milk);
 		
 		// Seed database
-		userRepo.save(new User("user1", "password1", "Alfred", "Bones", inventory, recipes));
-		userRepo.save(new User("user2", "password2", "Betty", "Carter", inventory, recipes));
-		userRepo.save(new User("user3", "password3", "Charlie", "Davis", inventory, recipes));
-		userRepo.save(new User("user4", "password4", "David", "Evans", inventory, recipes));
-		userRepo.save(new User("user5", "password5", "Emma", "Fletcher", inventory, recipes));
+		userService.createUser(new User("user1", "password1", "Alfred", "Bones", inventory, recipes));
+		userService.createUser(new User("user2", "password2", "Betty", "Carter", inventory, recipes));
+		userService.createUser(new User("user3", "password3", "Charlie", "Davis", inventory, recipes));
+		userService.createUser(new User("user4", "password4", "David", "Evans", inventory, recipes));
+		userService.createUser(new User("user5", "password5", "Emma", "Fletcher", inventory, recipes));
 		
 		inventory.add(apple);
-		userRepo.save(new User("user6", "password6", "Frank", "Green", inventory, recipes));
-		userRepo.save(new User("user7", "password7", "Grace", "Hill", inventory, recipes));
-		userRepo.save(new User("user8", "password8", "Hank", "Ingram", inventory, recipes));
-		userRepo.save(new User("user9", "password9", "Ivy", "Johnson", inventory, recipes));
-		userRepo.save(new User("user10", "password10", "Jack", "Keller", inventory, recipes));
+		userService.createUser(new User("user6", "password6", "Frank", "Green", inventory, recipes));
+		userService.createUser(new User("user7", "password7", "Grace", "Hill", inventory, recipes));
+		userService.createUser(new User("user8", "password8", "Hank", "Ingram", inventory, recipes));
+		userService.createUser(new User("user9", "password9", "Ivy", "Johnson", inventory, recipes));
+		userService.createUser(new User("user10", "password10", "Jack", "Keller", inventory, recipes));
 		
 		inventory.remove(0);
 		inventory.add(bread);
 		inventory.add(steak);
-		userRepo.save(new User("user11", "password11", "Katie", "Lewis", inventory, recipes));
-		userRepo.save(new User("user12", "password12", "Liam", "Moore", inventory, recipes));
-		userRepo.save(new User("user13", "password13", "Mia", "Nash", inventory, recipes));
-		userRepo.save(new User("user14", "password14", "Nathan", "O'Brien", inventory, recipes));
-		userRepo.save(new User("user15", "password15", "Olivia", "Parker", inventory, recipes));
+		userService.createUser(new User("user11", "password11", "Katie", "Lewis", inventory, recipes));
+		userService.createUser(new User("user12", "password12", "Liam", "Moore", inventory, recipes));
+		userService.createUser(new User("user13", "password13", "Mia", "Nash", inventory, recipes));
+		userService.createUser(new User("user14", "password14", "Nathan", "O'Brien", inventory, recipes));
+		userService.createUser(new User("user15", "password15", "Olivia", "Parker", inventory, recipes));
 		
 		inventory.remove(steak);
 		inventory.add(chicken);
-		userRepo.save(new User("user16", "password16", "Paul", "Quinn", inventory, recipes));
-		userRepo.save(new User("user17", "password17", "Quincy", "Reed", inventory, recipes));
-		userRepo.save(new User("user18", "password18", "Rachel", "Stone", inventory, recipes));
-		userRepo.save(new User("user19", "password19", "Samuel", "Taylor", inventory, recipes));
-		userRepo.save(new User("user20", "password20", "Tina", "Walker", inventory, recipes));
+		userService.createUser(new User("user16", "password16", "Paul", "Quinn", inventory, recipes));
+		userService.createUser(new User("user17", "password17", "Quincy", "Reed", inventory, recipes));
+		userService.createUser(new User("user18", "password18", "Rachel", "Stone", inventory, recipes));
+		userService.createUser(new User("user19", "password19", "Samuel", "Taylor", inventory, recipes));
+		userService.createUser(new User("user20", "password20", "Tina", "Walker", inventory, recipes));
 	}
 }

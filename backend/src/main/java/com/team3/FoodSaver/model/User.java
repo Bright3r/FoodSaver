@@ -15,6 +15,7 @@ public class User {
 	private String password;
 	private String firstName;
 	private String lastName;
+	private String passwordHash;
 	private List<Product> inventory;
 	private List<Recipe> recipes;
 	
@@ -86,6 +87,14 @@ public class User {
 	
 	public void setRecipes(List<Recipe> recipes) {
 		this.recipes = recipes;
+	}
+	
+	public String getPasswordHash() {
+		return passwordHash;
+	}
+	
+	public void setPasswordHash(String hash) {
+		this.passwordHash = hash;
 	}
 	
 	@Override

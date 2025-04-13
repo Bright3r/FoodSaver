@@ -1,6 +1,7 @@
 package com.team3.FoodSaver.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.team3.FoodSaver.model.User;
@@ -11,6 +12,13 @@ public class UserService {
 
 	@Autowired
 	private UserRepository userRepo;
+	
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
+	
+	public void deleteAll() {
+		userRepo.deleteAll();
+	}
 	
 	public User getUserByUsername(String username) {
 		User user = userRepo.findUserByUsername(username);
@@ -25,6 +33,7 @@ public class UserService {
 	
 	public boolean createUser(User user) {
 		try {
+			user.setPasswordHash(passwordEncoder.encode(user.getPassword()));
 			userRepo.save(user);
 			
 			System.out.println("Added new user: " + user);
@@ -59,6 +68,9 @@ public class UserService {
 			// assign updated user the same document id as old user's document
 			updatedUser.id = oldUser.id;
 			
+			// update password hash
+			updatedUser.setPasswordHash(passwordEncoder.encode(updatedUser.getPassword()));
+			
 			// overwrite old user document with updated user
 			userRepo.save(updatedUser);
 			return true;
@@ -77,12 +89,8 @@ public class UserService {
 		if (user == null) {
 			return false;
 		}
-		// User password is incorrect
-		else if (!unauthenticatedUser.getPassword().equals(user.getPassword())) {
-			return false;
-		}
 		
-		// User is authenticated
-		return true;
+		// Check if password is correct
+		return passwordEncoder.matches(unauthenticatedUser.getPassword(), user.getPasswordHash());
 	}
 }
