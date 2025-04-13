@@ -2,7 +2,8 @@ import { router } from 'expo-router';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
 
 import { useSession } from './ctx';
-import {useState} from "react";
+import React, {useState} from "react";
+import {StatusBar} from "expo-status-bar";
 
 export default function SignIn() {
     const { signIn } = useSession();
@@ -43,10 +44,11 @@ export default function SignIn() {
             <Text
                 style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, textAlign: 'center', textAlignVertical: 'center', width: 110, height: 40}}
                 onPress={() => {
-                    router.replace('/sign-up');
+                    router.navigate('/sign-up');
                 }}>
                 Signup
             </Text>
+            <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
     );
 }

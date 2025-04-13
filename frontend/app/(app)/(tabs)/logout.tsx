@@ -1,6 +1,8 @@
 import {StyleSheet, Text, View} from 'react-native';
 
 import { useSession } from '../../ctx';
+import {StatusBar} from "expo-status-bar";
+import React from "react";
 
 export default function SignOutScreen() {
     const { signOut } = useSession();
@@ -14,6 +16,7 @@ export default function SignOutScreen() {
                 }}>
                 Log Out
             </Text>
+            <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
     );
 }

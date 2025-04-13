@@ -1,7 +1,8 @@
 import {Text, View, StyleSheet, TextInput} from 'react-native';
-import {useState} from "react";
+import React, {useState} from "react";
 import {router} from "expo-router";
 import Constants from "expo-constants";
+import {StatusBar} from "expo-status-bar";
 
 const handleSubmit = async (firstname:string,lastname:string,username:string,password:string) => {
 
@@ -19,7 +20,7 @@ const handleSubmit = async (firstname:string,lastname:string,username:string,pas
         if (response.ok) {
             const userData = await response.json();
             console.log("Signup response: ", userData);
-            router.replace('/sign-in');
+            router.navigate('/sign-in');
         } else {
             console.error('Signup failed', await response.text());
             return null;
@@ -71,7 +72,7 @@ export default function SignUp() {
                 <Text
                     style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginRight: 10, textAlign: 'center', textAlignVertical: 'center', width: 110, height: 40}}
                     onPress={() => {
-                        router.replace('/sign-in');
+                        router.back();
                     }}>
                     Cancel
                 </Text>
@@ -92,6 +93,7 @@ export default function SignUp() {
                     Create Account
                 </Text>
             </View>
+            <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
     );
 }
