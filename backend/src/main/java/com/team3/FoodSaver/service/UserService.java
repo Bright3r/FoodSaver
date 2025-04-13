@@ -1,9 +1,14 @@
 package com.team3.FoodSaver.service;
 
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.team3.FoodSaver.model.Product;
 import com.team3.FoodSaver.model.User;
 import com.team3.FoodSaver.repository.UserRepository;
 
@@ -21,17 +26,48 @@ public class UserService {
 	}
 	
 	public User getUserByUsername(String username) {
+		// Find user in database
 		User user = userRepo.findUserByUsername(username);
 		if (user == null) {
 			System.out.println("Could not find user: " + user);
 			return null;
 		}
 		
-		System.out.println("Found user: " + user);
-		return user;
+		// Update user data for current time
+		List<Product> inventory = user.getInventory();
+		List<Product> expired = user.getExpired();
+		Iterator<Product> iterator = inventory.iterator();
+		while (iterator.hasNext()) {
+			Product p = iterator.next();
+			
+			// Check if expiration date has past
+			if (p.getExpirationDate().before(new Date())) {
+				expired.add(p);			// move product to expired list
+				iterator.remove();		// delete product from kitchen inventory
+			}
+		}
+		user.setInventory(inventory);
+		user.setExpired(expired);
+		
+		// Push changes to database and return user
+		try {
+			userRepo.save(user);
+			return user;
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+			return null;
+		}
 	}
 	
 	public boolean createUser(User user) {
+		// Make sure user does not already exist
+		User existingUser = getUserByUsername(user.getUsername());
+		if (existingUser != null) {
+			System.out.println("Failed to create user: User already exists");
+			return false;
+		}
+		
 		try {
 			user.setPasswordHash(passwordEncoder.encode(user.getPassword()));
 			userRepo.save(user);

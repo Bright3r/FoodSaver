@@ -17,6 +17,7 @@ public class User {
 	private String lastName;
 	private String passwordHash;
 	private List<Product> inventory;
+	private List<Product> expired;
 	private List<Recipe> recipes;
 	
 	public User() {
@@ -29,15 +30,17 @@ public class User {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.inventory = new ArrayList<>();
+		this.expired = new ArrayList<>();
 		this.recipes = new ArrayList<>();
 	}
 	
-	public User(String username, String password, String firstName, String lastName, List<Product> inventory, List<Recipe> recipes) {
+	public User(String username, String password, String firstName, String lastName, List<Product> inventory, List<Product> expired, List<Recipe> recipes) {
 		this.username = username;
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.inventory = inventory;
+		this.expired = expired;
 		this.recipes = recipes;
 	}
 	
@@ -79,6 +82,14 @@ public class User {
 	
 	public void setInventory(List<Product> inventory) {
 		this.inventory = inventory;
+	}
+	
+	public List<Product> getExpired() {
+		return expired;
+	}
+	
+	public void setExpired(List<Product> expired) {
+		this.expired = expired;
 	}
 	
 	public List<Recipe> getRecipes() {
