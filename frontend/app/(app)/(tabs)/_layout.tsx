@@ -21,18 +21,18 @@ export default function TabLayout() {
             backBehavior={"history"}
         >
             <Tabs.Screen
-                name="index"
+                name="inventory"
                 options={{
-                    title: 'Home',
+                    title: 'Inventory',
                     tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'home-sharp' : 'home-outline'} color={color} size={24} />
+                        <Ionicons name={focused ? 'bag' : 'bag-outline'} color={color} size={24}/>
                     ),
                 }}
             />
             <Tabs.Screen
-                name="inventory"
+                name="inventory-old"
                 options={{
-                    title: 'Inventory',
+                    title: 'null',
                     tabBarIcon: ({ color, focused }) => (
                         <Ionicons name={focused ? 'bag' : 'bag-outline'} color={color} size={24}/>
                     ),

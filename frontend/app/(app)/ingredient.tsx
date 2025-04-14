@@ -6,21 +6,23 @@ import {
     TextInput, 
     StyleSheet, 
     Image, 
+    Alert,
     Button, 
     Keyboard,
+    Modal,
     Platform,
     Dimensions, 
     KeyboardAvoidingView } from 'react-native';
 import {useRouter, useLocalSearchParams, router} from 'expo-router';
 import Constants from 'expo-constants';
-import { ScrollView } from 'react-native-gesture-handler';
 import {StatusBar} from "expo-status-bar";
 
+
 interface Ingredient {
-    name:string;
-    description:string;
-    nutritionGrade:string;
-    imageUrl:string;
+    name:string,
+    description:string,
+    nutritionGrade:string,
+    imageUrl:string,
 }
 
 const fetchIngredientData = async (productCode: number): Promise<Ingredient | null> => {
@@ -47,24 +49,34 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
     }
 };
 
+const setExpirationDate = async(date: string):Promise<Date> => {
+    return new Date(date);
+}
 
+/*
+ * Features to add:
+ *  User inputs their purchase date.
+ *  User inputs their expiration date.
+ *  Popup window to confirm ingredient save.
+ * 
+ **/
 const saveIngredient = async(username:string | null | undefined,  
     ingredient:Ingredient): Promise<void> => {
     try {
         const uri =
             Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
             '192.168.0.44:8083';
-        const response = await fetch(`http://${uri}/api/user?username=${username}`, {
+        const getResponse = await fetch(`http://${uri}/api/user?username=${username}`, {
             method: 'GET',
             headers: {'Content-Type': 'application/json'}
-        })
+        });
 
-        console.log(response.status);
-        console.log(`OK? ${response.ok}`);
+        console.log(getResponse.status);
+        console.log(`OK? ${getResponse.ok}`);
         console.log(`Username: ${username}`);
         
-        if (response.ok) {
-            const responseData = await response.json();
+        if (getResponse.ok) {
+            const responseData = await getResponse.json();
             let responseStr = JSON.stringify(responseData);
             console.log(`Response Data: ${responseStr}`);
 
@@ -74,50 +86,36 @@ const saveIngredient = async(username:string | null | undefined,
 
             console.log(`Updating inventory...`);
             let updatedData = JSON.parse(responseStr);
-            let objInventory = updatedData['inventory'];
-            
-            const dupe = objInventory.find((item: { 
-                name: string,
-                qty: number,
-                purchaseDate: Date,
-                expirationDate: Date
-            }) => {
-                if (item.name === ingredient.name) {
-                    item.qty += 1;
-                    return true;
-                }
-            });
+            let numOfItems;
 
-            if (typeof dupe === 'undefined') {
-                updatedData['inventory'].push({
-                    name: ingredient.name,
-                    qty: 1,
-                    purchaseDate: today, // User should be able to set their own purchase date.
-                    expirationDate: expr // User should be able to set their own expiration date.
-                });
-            }
+            updatedData['inventory'].push({
+                name: ingredient.name,
+                qty: numOfItems,
+                purchaseDate: today, // User should be able to set their own purchase date.
+                expirationDate: expr // User should be able to set their own expiration date.
+            });
 
             console.log(`Item added: ${ingredient.name}`);
             console.log(`${username}'s inventory: ${JSON.stringify(updatedData['inventory'])}`);
 
-            const response2 = await fetch(`http://${uri}/api/user`, {
+            const putResponse = await fetch(`http://${uri}/api/user`, {
                 method: 'PUT',
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(updatedData)
             })
 
-            console.log(response2.status);
-            console.log(`OK? ${response2.ok}`);
+            console.log(putResponse.status);
+            console.log(`OK? ${putResponse.ok}`);
 
-            if (response2.ok) {
+            if (putResponse.ok) {
                 console.log(`${username}'s inventory successfully updated`);
                 alert("Item added to inventory!");
-                router.replace('/inventory');
+                router.navigate('./inventory');
             } else {
-                console.error("Failed to save item", await response.text());
+                console.error("Failed to save item", await getResponse.text());
             }
         } else {
-            console.error('Failed to save item', await response.text());
+            console.error('Failed to save item', await getResponse.text());
         }
 
     } catch (error) {
@@ -130,10 +128,23 @@ export default function IngredientPage() {
     const [ingredient, setIngredient] = useState<Ingredient | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const { scannedData } = useLocalSearchParams();
+    const [confirmItemSave, setConfirmItemSave] = useState(false);
     const [itemName, setItemName] = useState('');
     const [itemDesc, setItemDesc] = useState('');
+    const [expirationDate, setExpirationDate] = useState('');
+    const [isExprModalOpen, setExprModalOpen] = useState(false);
+    const [isModalOpen, setModalOpen] = useState(false);
     const parsedScannedData = scannedData ? parseInt(scannedData as string) : NaN;
     const router = useRouter();
+
+    const openModal = () => {
+        setExprModalOpen(false);
+        setModalOpen(true);
+    }
+
+    const closeModal = () => {
+        setModalOpen(false);
+    }
 
     useEffect(() => {
         const getIngredient = async () => {
@@ -199,18 +210,81 @@ export default function IngredientPage() {
                     >
                         <Text
                             style={styles.button}
-                            onPress={() => {
-                                // Implement inventory functionality.
-                                saveIngredient(session, ingredient);
-                            }}
+                            onPress={() => setExprModalOpen(true)}
                         >
                             Save
                         </Text>
+                        <Text style={styles.button} onPress={() => router.back()}>Back</Text>
+
+                        <Modal
+                        transparent={true}
+                        visible={isExprModalOpen}
+                        animationType="fade"
+                        onRequestClose={() => setExprModalOpen(false)}
+                        >
+                            <KeyboardAvoidingView 
+                            style={{flex: 1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}
+                            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                            keyboardVerticalOffset={Platform.OS === 'ios' ? -65 : 0}>
+                                <View style={{flex: 1, justifyContent: "space-evenly"}}>
+                                    <Text style={{color: '#ffffff', position: 'absolute', flex: 1, justifyContent: "center", alignSelf: 'center', fontSize: 18}}>Set expiration date</Text>
+                                </View> 
+                                <View style={{flex: 1, justifyContent: "center"}}>
+                                    <TextInput 
+                                    style={{color: '#ffffff', width: 390, height: 100, borderWidth: 1, borderRadius: 10, borderColor: "#ffffff", alignSelf: 'center', justifyContent: "center"}} 
+                                    onChangeText={val => setExpirationDate(val)}
+                                    submitBehavior='blurAndSubmit'
+                                    placeholder='Expiration Date'>
+                                        {expirationDate}
+                                    </TextInput>
+                                </View>
+                                <View style={{flex: 1, justifyContent: "center"}}>
+                                    <Text
+                                    style={styles.button}
+                                    onPress={() => {
+                                        setExpirationDate(expirationDate);
+                                        openModal();
+                                        setExprModalOpen(false);
+                                    }}
+                                    >
+                                        Confirm
+                                    </Text>
+                                    <Text style={styles.button} onPress={() => setExprModalOpen(false)}>
+                                        Cancel
+                                    </Text>
+                                </View>
+                            </KeyboardAvoidingView>
+                        </Modal>
+                        
+                        <Modal transparent={true} visible={isModalOpen} animationType="fade" onRequestClose={closeModal}>
+                            <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+                                <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+                                    <Text style={{color: '#ffffff', fontSize: 24}}>Save this item to inventory?</Text>
+                                </View>
+                                <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+                                    <Text
+                                        style={styles.button}
+                                        onPress={() => {
+                                            saveIngredient(session, ingredient);
+                                            router.navigate("./inventory");
+                                            closeModal();
+                                        }}
+                                        >
+                                            Confirm
+                                        </Text>
+                                        <Text style={styles.button} onPress={closeModal}>
+                                            Cancel
+                                        </Text>
+                                </View>
+                            </View>
+                        </Modal>
+                        
                     </View>
                 </>
             ) : (
                 <>
                     <Text style={styles.name}>Unknown ingredient.</Text>
+                    <Text style={styles.button} onPress={() => router.back()}>Back</Text>
                 </>
             )}
             <StatusBar style="light" backgroundColor={"#000000"}/>
@@ -291,10 +365,19 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         flex: 1
     },
+    expirationDateContainer: {
+        height: 10,
+        rowGap: 0
+    },
+    expirationDate: {
+        fontSize: 16,
+        fontWeight: 'normal',
+        color: '#ffffff',
+        flex: 1
+    },
     buttonContainer: {
         height: 150,
         padding: 5
-
     },
     button: {
        color: '#fff',
@@ -310,6 +393,13 @@ const styles = StyleSheet.create({
        right: 0,
        padding: 10,
         marginBottom: 10
+    },
+    modalContainer: {
+        marginBottom: 20,
+        backgroundColor: '#ffffff',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
     },
     text: {
         fontSize: 18,

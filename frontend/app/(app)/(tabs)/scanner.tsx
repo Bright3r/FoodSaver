@@ -34,7 +34,7 @@ export default function Scanner() {
     console.log(`Scanned barcode type: ${type}\nData: ${data}`);
 
     router.push({
-      pathname: '/ingredient',
+      pathname: '../ingredient',
       params: { scannedData: data },
     });
 

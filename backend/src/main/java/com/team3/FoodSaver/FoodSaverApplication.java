@@ -41,7 +41,7 @@ public class FoodSaverApplication implements CommandLineRunner {
         // Create test dates
         Date purchaseDate = new Date(System.currentTimeMillis()); 								 // Today's date
         Date expirationDate = new Date(System.currentTimeMillis() + (7L * 24 * 60 * 60 * 1000)); // 7 days from now
-        Date expiredDate = new Date(System.currentTimeMillis() - (7L * 24 * 60 * 60 * 1000));	 // 7 days ago
+        Date expiredDate = new Date(System.currentTimeMillis() + (7L * 24 * 60 * 60 * 1000));	 // 7 days ago
 
         // Create test products
         Product milk = new Product("Milk", 2, purchaseDate, expiredDate);

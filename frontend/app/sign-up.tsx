@@ -44,7 +44,7 @@ export default function SignUp() {
                 Sign Up
             </Text>
             <TextInput
-                style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, margin: 10, width: 250, height: 50}}
+                style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginBottom: 10, width: 250, height: 50}}
                 placeholder="First Name"
                 placeholderTextColor="#ffffff"
                 onChangeText={val => setFirstname(val)}
