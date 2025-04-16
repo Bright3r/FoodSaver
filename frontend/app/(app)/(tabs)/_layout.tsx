@@ -30,15 +30,6 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="inventory-old"
-                options={{
-                    title: 'null',
-                    tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'bag' : 'bag-outline'} color={color} size={24}/>
-                    ),
-                }}
-            />
-            <Tabs.Screen
                 name="scanner"
                 options={{
                     title: 'Scanner',

@@ -16,14 +16,9 @@ import {
 import {useRouter, useLocalSearchParams, router} from 'expo-router';
 import Constants from 'expo-constants';
 import {StatusBar} from "expo-status-bar";
+import DateTimePicker from '@react-native-community/datetimepicker'
+import { Ingredient } from '../ingredientInterface';
 
-
-interface Ingredient {
-    name:string,
-    description:string,
-    nutritionGrade:string,
-    imageUrl:string,
-}
 
 const fetchIngredientData = async (productCode: number): Promise<Ingredient | null> => {
     // Fetching item data from API.
@@ -49,19 +44,17 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
     }
 };
 
-const setExpirationDate = async(date: string):Promise<Date> => {
+const setExpirationDate = (date:Date): Date => {
     return new Date(date);
 }
 
 /*
  * Features to add:
  *  User inputs their purchase date.
- *  User inputs their expiration date.
- *  Popup window to confirm ingredient save.
  * 
  **/
 const saveIngredient = async(username:string | null | undefined,  
-    ingredient:Ingredient): Promise<void> => {
+    ingredient:Ingredient, expiration:Date): Promise<void> => {
     try {
         const uri =
             Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
@@ -70,7 +63,6 @@ const saveIngredient = async(username:string | null | undefined,
             method: 'GET',
             headers: {'Content-Type': 'application/json'}
         });
-
         console.log(getResponse.status);
         console.log(`OK? ${getResponse.ok}`);
         console.log(`Username: ${username}`);
@@ -81,8 +73,6 @@ const saveIngredient = async(username:string | null | undefined,
             console.log(`Response Data: ${responseStr}`);
 
             const today = new Date();
-            const expr = new Date(today.getFullYear(), today.getMonth(),
-                today.getDate() + 7);
 
             console.log(`Updating inventory...`);
             let updatedData = JSON.parse(responseStr);
@@ -90,9 +80,9 @@ const saveIngredient = async(username:string | null | undefined,
 
             updatedData['inventory'].push({
                 name: ingredient.name,
-                qty: numOfItems,
+                qty: 1,
                 purchaseDate: today, // User should be able to set their own purchase date.
-                expirationDate: expr // User should be able to set their own expiration date.
+                expirationDate: expiration
             });
 
             console.log(`Item added: ${ingredient.name}`);
@@ -110,7 +100,10 @@ const saveIngredient = async(username:string | null | undefined,
             if (putResponse.ok) {
                 console.log(`${username}'s inventory successfully updated`);
                 alert("Item added to inventory!");
-                router.navigate('./inventory');
+                router.push({
+                    pathname: './inventory',
+                    params: { key: Date.now().toString() }
+                });
             } else {
                 console.error("Failed to save item", await getResponse.text());
             }
@@ -131,20 +124,13 @@ export default function IngredientPage() {
     const [confirmItemSave, setConfirmItemSave] = useState(false);
     const [itemName, setItemName] = useState('');
     const [itemDesc, setItemDesc] = useState('');
-    const [expirationDate, setExpirationDate] = useState('');
-    const [isExprModalOpen, setExprModalOpen] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const [isModalOpen, setModalOpen] = useState(false);
     const parsedScannedData = scannedData ? parseInt(scannedData as string) : NaN;
+    const { refresh } = useLocalSearchParams();
+    let expirationDate: Date = new Date();
+    const today = new Date();
     const router = useRouter();
-
-    const openModal = () => {
-        setExprModalOpen(false);
-        setModalOpen(true);
-    }
-
-    const closeModal = () => {
-        setModalOpen(false);
-    }
 
     useEffect(() => {
         const getIngredient = async () => {
@@ -210,53 +196,33 @@ export default function IngredientPage() {
                     >
                         <Text
                             style={styles.button}
-                            onPress={() => setExprModalOpen(true)}
+                            onPress={() => setShowDatePicker(true)}
                         >
                             Save
                         </Text>
                         <Text style={styles.button} onPress={() => router.back()}>Back</Text>
 
-                        <Modal
-                        transparent={true}
-                        visible={isExprModalOpen}
-                        animationType="fade"
-                        onRequestClose={() => setExprModalOpen(false)}
-                        >
-                            <KeyboardAvoidingView 
-                            style={{flex: 1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}
-                            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                            keyboardVerticalOffset={Platform.OS === 'ios' ? -65 : 0}>
-                                <View style={{flex: 1, justifyContent: "space-evenly"}}>
-                                    <Text style={{color: '#ffffff', position: 'absolute', flex: 1, justifyContent: "center", alignSelf: 'center', fontSize: 18}}>Set expiration date</Text>
-                                </View> 
-                                <View style={{flex: 1, justifyContent: "center"}}>
-                                    <TextInput 
-                                    style={{color: '#ffffff', width: 390, height: 100, borderWidth: 1, borderRadius: 10, borderColor: "#ffffff", alignSelf: 'center', justifyContent: "center"}} 
-                                    onChangeText={val => setExpirationDate(val)}
-                                    submitBehavior='blurAndSubmit'
-                                    placeholder='Expiration Date'>
-                                        {expirationDate}
-                                    </TextInput>
-                                </View>
-                                <View style={{flex: 1, justifyContent: "center"}}>
-                                    <Text
-                                    style={styles.button}
-                                    onPress={() => {
-                                        setExpirationDate(expirationDate);
-                                        openModal();
-                                        setExprModalOpen(false);
+                        {showDatePicker && (
+                            <View style={{ marginTop: 10, alignItems: 'center' }}>
+                                <Text style={styles.text}>Select expiration date:</Text>
+                                <DateTimePicker
+                                    value={expirationDate}
+                                    mode="date"
+                                    display="default"
+                                    minimumDate={today}
+                                    maximumDate={new Date(2026, 5, 1)}
+                                    onChange={(event, selectedDate) => {
+                                        if (selectedDate) {
+                                            setExpirationDate(selectedDate);
+                                            setShowDatePicker(false); // optional if you store it in state
+                                            setModalOpen(true); // Open confirmation modal right after date is picked
+                                        }
                                     }}
-                                    >
-                                        Confirm
-                                    </Text>
-                                    <Text style={styles.button} onPress={() => setExprModalOpen(false)}>
-                                        Cancel
-                                    </Text>
-                                </View>
-                            </KeyboardAvoidingView>
-                        </Modal>
+                                />
+                            </View>
+                        )}
                         
-                        <Modal transparent={true} visible={isModalOpen} animationType="fade" onRequestClose={closeModal}>
+                        <Modal transparent={true} visible={isModalOpen} animationType="fade" onRequestClose={() => setModalOpen(false)}>
                             <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
                                 <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
                                     <Text style={{color: '#ffffff', fontSize: 24}}>Save this item to inventory?</Text>
@@ -265,14 +231,17 @@ export default function IngredientPage() {
                                     <Text
                                         style={styles.button}
                                         onPress={() => {
-                                            saveIngredient(session, ingredient);
-                                            router.navigate("./inventory");
-                                            closeModal();
+                                            saveIngredient(session, ingredient, expirationDate);
+                                            router.replace({
+                                                pathname: '/(app)/(tabs)/inventory',
+                                                params: { key: Date.now.toString() }
+                                            });
+                                            setModalOpen(false);
                                         }}
                                         >
                                             Confirm
                                         </Text>
-                                        <Text style={styles.button} onPress={closeModal}>
+                                        <Text style={styles.button} onPress={() => setModalOpen(false)}>
                                             Cancel
                                         </Text>
                                 </View>

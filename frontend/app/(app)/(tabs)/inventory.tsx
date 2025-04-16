@@ -1,65 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Text, View, StyleSheet, FlatList } from 'react-native';
+import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useSession } from '../../ctx';
 import Constants from 'expo-constants';
 import {StatusBar} from "expo-status-bar";
-import ReactTable from 'react-data-table-component';
-
-interface Ingredient {
-    name: string,
-    qty: number,
-    purchaseDate: Date,
-    expirationDate: Date
-}
+import { IngredientInventory } from '../../ingredientInterface'
 
 export default function Inventory() {
     const {session} = useSession();
-    const [inventory, setInventory] = useState<Ingredient[]>([]);
+    const [inventory, setInventory] = useState<IngredientInventory[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
+    const { refresh, key } = useLocalSearchParams();
 
-    useEffect(() => {
-        const getInventory = async (username:string | null | undefined): Promise<void> => {
-            setLoading(true);
-            console.log(`Loading before fetch? ${loading}`);
-            console.log(`Table loaded before fetch? ${isLoaded}`);
-            if (!isLoaded) {
-                try {
-                    const uri =
-                    Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-                    '192.168.0.44:8083';
-                    await fetch(`http://${uri}/api/user?username=${username}`, {
-                        method: 'GET',
-                        headers: {"Content-Type": "application/json"}
-                    })
-                    .then(res => res.json())
-                    .then((data: any) => {
-                        console.log("Retrieving inventory...");
-                        data['inventory'].map((item: Ingredient) => {
-                            console.log(JSON.stringify(item));
-                            inventory.push(item);
-                        });
+    const getInventory = async (username:string | null | undefined): Promise<void> => {
+        if (!username) return;
+        setLoading(true);
+        setInventory([]);
+        console.log(`Loading before fetch? ${loading}`);
+        console.log(`Table loaded before fetch? ${isLoaded}`);
+        try {
+            const uri =
+            Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
+            '192.168.0.44:8083';
+            await fetch(`http://${uri}/api/user?username=${username}`, {
+                method: 'GET',
+                headers: {"Content-Type": "application/json"}
+            })
+            .then(res => res.json())
+            .then((data: any) => {
+                console.log("Retrieving inventory...");
+                setInventory(data.inventory ?? []);
 
-                        // DEBUG: inventoryStr - for checking the correctness of response data.
-                        const inventoryStr = JSON.stringify(inventory);
-                        console.log(`Inventory: ${inventoryStr}`);
-                    });
+                // DEBUG: inventoryStr - for checking the correctness of response data.
+                const inventoryStr = JSON.stringify(data.inventory);
+                console.log(`Inventory: ${inventoryStr}`);
+            });
 
-                    setLoading(false);
-                    setIsLoaded(true);
-                    console.log(`Loading after fetch? ${loading}`);
-                    console.log(`Table loaded after fetch? ${isLoaded}`);
+            setLoading(false);
 
-                    console.log(`Inventory retrieved!`);
-                    console.log(`Table successfully loaded!`);
-                } catch (error) {
-                    console.error("Failed to get inventory", error);
-                }
-            }
+            console.log(`Inventory retrieved!`);
+            console.log(`Table successfully loaded!`);
+        } catch (error) {
+            console.error("Failed to get inventory", error);
         }
+    }
 
-        getInventory(session);
-    }, []);
+    
+    // useEffect(() => {
+    //     getInventory(session);
+    // }, [session, refresh]);
+
+    useFocusEffect(
+        useCallback(() => {
+            getInventory(session);
+        }, [session, refresh, key])
+    );
 
     return (
         <View style={styles.container}>
@@ -73,33 +69,21 @@ export default function Inventory() {
                         <View style={styles.tableContainer}>
                             <View style={{flexDirection: 'row'}}>
                                 <View style={{width:90, marginBottom:0, borderWidth: 1, borderColor: "#ffffff"}}>
-                                    <View style={styles.headerContainer}>
-                                        <Text style={{color: "#fff", marginBottom: 20}}>Name</Text>
-                                    </View>
                                     <View style={styles.cellContainer}>
                                         <Text style={{color: "#fff", marginBottom: 0}}>{item.name}</Text>
                                     </View>
                                 </View>
                                 <View style={{width:90, marginBottom:0, borderWidth: 1, borderColor: "#ffffff"}}>
-                                    <View style={styles.headerContainer}>
-                                        <Text style={{color: "#fff", marginBottom: 20}}>Quantity</Text>
-                                    </View>
                                     <View style={styles.cellContainer}>
                                         <Text style={{color: "#fff", marginBottom: 0}}>{item.qty}</Text>
                                     </View>
                                 </View>
                                 <View style={{width:90, marginBottom:0, borderWidth: 1, borderColor: "#ffffff"}}>
-                                    <View style={styles.headerContainer}>
-                                        <Text style={{color: "#fff", marginBottom: 20}}>Purchase Date</Text>
-                                    </View>
                                     <View style={styles.cellContainer}>
                                         <Text style={{color: "#fff", marginBottom: 0}}>{item.purchaseDate.toString()}</Text>
                                     </View>  
                                 </View>
                                 <View style={{width:90, marginBottom:0, borderWidth: 1, borderColor: "#ffffff"}}>
-                                    <View style={styles.headerContainer}>
-                                        <Text style={{color: "#fff", marginBottom: 20}}>Expiration Date</Text>
-                                    </View>
                                     <View style={styles.cellContainer}>
                                         <Text style={{color: "#fff", marginBottom: 0}}>{item.expirationDate.toString()}</Text>
                                     </View>
