@@ -46,11 +46,6 @@ export default function Inventory() {
         }
     }
 
-    
-    // useEffect(() => {
-    //     getInventory(session);
-    // }, [session, refresh]);
-
     useFocusEffect(
         useCallback(() => {
             getInventory(session);

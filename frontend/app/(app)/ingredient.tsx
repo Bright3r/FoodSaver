@@ -44,9 +44,7 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
     }
 };
 
-const setExpirationDate = (date:Date): Date => {
-    return new Date(date);
-}
+
 
 /*
  * Features to add:
@@ -128,7 +126,7 @@ export default function IngredientPage() {
     const [isModalOpen, setModalOpen] = useState(false);
     const parsedScannedData = scannedData ? parseInt(scannedData as string) : NaN;
     const { refresh } = useLocalSearchParams();
-    let expirationDate: Date = new Date();
+    const [expirationDate, setExpirationDate] = useState<Date>(new Date());
     const today = new Date();
     const router = useRouter();
 
@@ -213,6 +211,7 @@ export default function IngredientPage() {
                                     maximumDate={new Date(2026, 5, 1)}
                                     onChange={(event, selectedDate) => {
                                         if (selectedDate) {
+                                            console.log(`Expiration date set to ${selectedDate}`);
                                             setExpirationDate(selectedDate);
                                             setShowDatePicker(false); // optional if you store it in state
                                             setModalOpen(true); // Open confirmation modal right after date is picked
@@ -234,7 +233,9 @@ export default function IngredientPage() {
                                             saveIngredient(session, ingredient, expirationDate);
                                             router.replace({
                                                 pathname: '/(app)/(tabs)/inventory',
-                                                params: { key: Date.now.toString() }
+                                                params: { 
+                                                    key: Date.now.toString()
+                                                 }
                                             });
                                             setModalOpen(false);
                                         }}
