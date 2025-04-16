@@ -52,7 +52,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
                             setSession(userData.username);
                             // Navigate after signing in. You may want to tweak this to ensure sign-in is
                             // successful before navigating.
-                            router.replace('/');
+                            router.navigate('/inventory');
                         } else {
                             console.error('Signin failed', await response.text());
                         }

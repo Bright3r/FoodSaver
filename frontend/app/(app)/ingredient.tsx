@@ -6,22 +6,19 @@ import {
     TextInput, 
     StyleSheet, 
     Image, 
+    Alert,
     Button, 
     Keyboard,
+    Modal,
     Platform,
     Dimensions, 
     KeyboardAvoidingView } from 'react-native';
 import {useRouter, useLocalSearchParams, router} from 'expo-router';
 import Constants from 'expo-constants';
-import { ScrollView } from 'react-native-gesture-handler';
 import {StatusBar} from "expo-status-bar";
+import DateTimePicker from '@react-native-community/datetimepicker'
+import { Ingredient } from '../ingredientInterface';
 
-interface Ingredient {
-    name:string;
-    description:string;
-    nutritionGrade:string;
-    imageUrl:string;
-}
 
 const fetchIngredientData = async (productCode: number): Promise<Ingredient | null> => {
     // Fetching item data from API.
@@ -48,76 +45,68 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
 };
 
 
+
+/*
+ * Features to add:
+ *  User inputs their purchase date.
+ * 
+ **/
 const saveIngredient = async(username:string | null | undefined,  
-    ingredient:Ingredient): Promise<void> => {
+    ingredient:Ingredient, expiration:Date): Promise<void> => {
     try {
         const uri =
             Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
             '192.168.0.44:8083';
-        const response = await fetch(`http://${uri}/api/user?username=${username}`, {
+        const getResponse = await fetch(`http://${uri}/api/user?username=${username}`, {
             method: 'GET',
             headers: {'Content-Type': 'application/json'}
-        })
-
-        console.log(response.status);
-        console.log(`OK? ${response.ok}`);
+        });
+        console.log(getResponse.status);
+        console.log(`OK? ${getResponse.ok}`);
         console.log(`Username: ${username}`);
         
-        if (response.ok) {
-            const responseData = await response.json();
+        if (getResponse.ok) {
+            const responseData = await getResponse.json();
             let responseStr = JSON.stringify(responseData);
             console.log(`Response Data: ${responseStr}`);
 
             const today = new Date();
-            const expr = new Date(today.getFullYear(), today.getMonth(),
-                today.getDate() + 7);
 
             console.log(`Updating inventory...`);
             let updatedData = JSON.parse(responseStr);
-            let objInventory = updatedData['inventory'];
-            
-            const dupe = objInventory.find((item: { 
-                name: string,
-                qty: number,
-                purchaseDate: Date,
-                expirationDate: Date
-            }) => {
-                if (item.name === ingredient.name) {
-                    item.qty += 1;
-                    return true;
-                }
-            });
+            let numOfItems;
 
-            if (typeof dupe === 'undefined') {
-                updatedData['inventory'].push({
-                    name: ingredient.name,
-                    qty: 1,
-                    purchaseDate: today, // User should be able to set their own purchase date.
-                    expirationDate: expr // User should be able to set their own expiration date.
-                });
-            }
+            updatedData['inventory'].push({
+                name: ingredient.name,
+                qty: 1,
+                purchaseDate: today, // User should be able to set their own purchase date.
+                expirationDate: expiration
+            });
 
             console.log(`Item added: ${ingredient.name}`);
             console.log(`${username}'s inventory: ${JSON.stringify(updatedData['inventory'])}`);
 
-            const response2 = await fetch(`http://${uri}/api/user`, {
+            const putResponse = await fetch(`http://${uri}/api/user`, {
                 method: 'PUT',
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(updatedData)
             })
 
-            console.log(response2.status);
-            console.log(`OK? ${response2.ok}`);
+            console.log(putResponse.status);
+            console.log(`OK? ${putResponse.ok}`);
 
-            if (response2.ok) {
+            if (putResponse.ok) {
                 console.log(`${username}'s inventory successfully updated`);
                 alert("Item added to inventory!");
-                router.replace('/inventory');
+                router.push({
+                    pathname: './inventory',
+                    params: { key: Date.now().toString() }
+                });
             } else {
-                console.error("Failed to save item", await response.text());
+                console.error("Failed to save item", await getResponse.text());
             }
         } else {
-            console.error('Failed to save item', await response.text());
+            console.error('Failed to save item', await getResponse.text());
         }
 
     } catch (error) {
@@ -130,9 +119,15 @@ export default function IngredientPage() {
     const [ingredient, setIngredient] = useState<Ingredient | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const { scannedData } = useLocalSearchParams();
+    const [confirmItemSave, setConfirmItemSave] = useState(false);
     const [itemName, setItemName] = useState('');
     const [itemDesc, setItemDesc] = useState('');
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [isModalOpen, setModalOpen] = useState(false);
     const parsedScannedData = scannedData ? parseInt(scannedData as string) : NaN;
+    const { refresh } = useLocalSearchParams();
+    const [expirationDate, setExpirationDate] = useState<Date>(new Date());
+    const today = new Date();
     const router = useRouter();
 
     useEffect(() => {
@@ -199,18 +194,67 @@ export default function IngredientPage() {
                     >
                         <Text
                             style={styles.button}
-                            onPress={() => {
-                                // Implement inventory functionality.
-                                saveIngredient(session, ingredient);
-                            }}
+                            onPress={() => setShowDatePicker(true)}
                         >
                             Save
                         </Text>
+                        <Text style={styles.button} onPress={() => router.back()}>Back</Text>
+
+                        {showDatePicker && (
+                            <View style={{ marginTop: 10, alignItems: 'center' }}>
+                                <Text style={styles.text}>Select expiration date:</Text>
+                                <DateTimePicker
+                                    value={expirationDate}
+                                    mode="date"
+                                    display="default"
+                                    minimumDate={today}
+                                    maximumDate={new Date(2026, 5, 1)}
+                                    onChange={(event, selectedDate) => {
+                                        if (selectedDate) {
+                                            console.log(`Expiration date set to ${selectedDate}`);
+                                            setExpirationDate(selectedDate);
+                                            setShowDatePicker(false); // optional if you store it in state
+                                            setModalOpen(true); // Open confirmation modal right after date is picked
+                                        }
+                                    }}
+                                />
+                            </View>
+                        )}
+                        
+                        <Modal transparent={true} visible={isModalOpen} animationType="fade" onRequestClose={() => setModalOpen(false)}>
+                            <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+                                <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+                                    <Text style={{color: '#ffffff', fontSize: 24}}>Save this item to inventory?</Text>
+                                </View>
+                                <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+                                    <Text
+                                        style={styles.button}
+                                        onPress={() => {
+                                            saveIngredient(session, ingredient, expirationDate);
+                                            router.replace({
+                                                pathname: '/(app)/(tabs)/inventory',
+                                                params: { 
+                                                    key: Date.now.toString()
+                                                 }
+                                            });
+                                            setModalOpen(false);
+                                        }}
+                                        >
+                                            Confirm
+                                        </Text>
+                                        <Text style={styles.button} onPress={() => setModalOpen(false)}>
+                                            Cancel
+                                        </Text>
+                                </View>
+                            </View>
+                        </Modal>
+                        
                     </View>
                 </>
             ) : (
                 <>
                     <Text style={styles.name}>Unknown ingredient.</Text>
+                    <Text style={styles.button} onPress={() => router.back()}>Back</Text>
                 </>
             )}
             <StatusBar style="light" backgroundColor={"#000000"}/>
@@ -291,10 +335,19 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         flex: 1
     },
+    expirationDateContainer: {
+        height: 10,
+        rowGap: 0
+    },
+    expirationDate: {
+        fontSize: 16,
+        fontWeight: 'normal',
+        color: '#ffffff',
+        flex: 1
+    },
     buttonContainer: {
         height: 150,
         padding: 5
-
     },
     button: {
        color: '#fff',
@@ -310,6 +363,13 @@ const styles = StyleSheet.create({
        right: 0,
        padding: 10,
         marginBottom: 10
+    },
+    modalContainer: {
+        marginBottom: 20,
+        backgroundColor: '#ffffff',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
     },
     text: {
         fontSize: 18,

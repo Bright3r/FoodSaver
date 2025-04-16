@@ -21,15 +21,6 @@ export default function TabLayout() {
             backBehavior={"history"}
         >
             <Tabs.Screen
-                name="index"
-                options={{
-                    title: 'Home',
-                    tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'home-sharp' : 'home-outline'} color={color} size={24} />
-                    ),
-                }}
-            />
-            <Tabs.Screen
                 name="inventory"
                 options={{
                     title: 'Inventory',

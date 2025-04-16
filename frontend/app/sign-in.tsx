@@ -22,7 +22,7 @@ export default function SignIn() {
                 Sign In
             </Text>
             <TextInput
-                style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, margin: 20, width: 250, height: 50}}
+                style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginBottom: 20, width: 250, height: 50}}
                 placeholder="Username"
                 placeholderTextColor="#ffffff"
                 onChangeText={val => setUsername(val)}
