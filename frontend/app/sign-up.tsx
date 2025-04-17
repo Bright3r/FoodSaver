@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import {router} from "expo-router";
 import Constants from "expo-constants";
 import {StatusBar} from "expo-status-bar";
+import { SERVER_URI } from '@/const';
 
 const handleSubmit = async (firstname:string,lastname:string,username:string,password:string) => {
 
@@ -10,7 +11,7 @@ const handleSubmit = async (firstname:string,lastname:string,username:string,pas
         //need to find the ip of the localhost since the backend is not running on the same device
         const uri =
             Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-            '192.168.0.44:8083';
+            SERVER_URI;
         const response = await fetch(`http://${uri}/api/auth/signup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

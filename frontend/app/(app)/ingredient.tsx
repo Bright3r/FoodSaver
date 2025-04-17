@@ -18,6 +18,7 @@ import Constants from 'expo-constants';
 import {StatusBar} from "expo-status-bar";
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { Ingredient } from '../ingredientInterface';
+import { SERVER_URI } from '@/const';
 
 
 const fetchIngredientData = async (productCode: number): Promise<Ingredient | null> => {
@@ -56,7 +57,7 @@ const saveIngredient = async(username:string | null | undefined,
     try {
         const uri =
             Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-            '192.168.0.44:8083';
+            SERVER_URI;
         const getResponse = await fetch(`http://${uri}/api/user?username=${username}`, {
             method: 'GET',
             headers: {'Content-Type': 'application/json'}

@@ -4,6 +4,7 @@ import {router, useFocusEffect} from "expo-router";
 import React, {useCallback, useState} from "react";
 import { StatusBar } from 'expo-status-bar';
 import Constants from "expo-constants";
+import { SERVER_URI } from '@/const';
 
 
 
@@ -44,7 +45,7 @@ export default function Recipes() {
         try {
             const uri =
                 Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-                '192.168.0.44:8083';
+                SERVER_URI;
             await fetch(`http://${uri}/api/user?username=${username}`, {
                 method: 'GET',
                 headers: {'Content-Type': 'application/json'}

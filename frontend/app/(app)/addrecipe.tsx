@@ -4,13 +4,14 @@ import {router} from "expo-router";
 import {ScrollView, StyleSheet, Text, TextInput, View} from "react-native";
 import {StatusBar} from "expo-status-bar";
 import Constants from "expo-constants";
+import { SERVER_URI } from "@/const";
 
 const saveRecipe = async(username:string | null | undefined, recipeTitle:string, recipeTime:number, recipeIngredients:string[], recipeInstructions:string[]): Promise<void> => {
     try {
         //set endpoint once it is created
         const uri =
             Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-            '192.168.0.44:8083';
+            SERVER_URI;
         const response = await fetch(`http://${uri}/api/user?username=${username}`, {
             method: 'GET',
             headers: {'Content-Type': 'application/json'}

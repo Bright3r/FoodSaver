@@ -5,6 +5,7 @@ import { useSession } from '../../ctx';
 import Constants from 'expo-constants';
 import {StatusBar} from "expo-status-bar";
 import { IngredientInventory } from '../../ingredientInterface'
+import {SERVER_URI} from "@/const"
 
 export default function Inventory() {
     const {session} = useSession();
@@ -22,7 +23,7 @@ export default function Inventory() {
         try {
             const uri =
             Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-            '192.168.0.44:8083';
+            SERVER_URI;
             await fetch(`http://${uri}/api/user?username=${username}`, {
                 method: 'GET',
                 headers: {"Content-Type": "application/json"}
