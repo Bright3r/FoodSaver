@@ -75,7 +75,6 @@ const saveIngredient = async(username:string | null | undefined,
 
             console.log(`Updating inventory...`);
             let updatedData = JSON.parse(responseStr);
-            let numOfItems;
 
             updatedData['inventory'].push({
                 name: ingredient.name,
@@ -188,7 +187,9 @@ export default function IngredientPage() {
                     <View 
                         style={styles.nutritionGradeContainer}
                     >
-                        <Text style={styles.nutritionGrade}>{ingredient.nutritionGrade}</Text>
+                        <Text style={styles.nutritionGrade}>
+                            Nutrition Score: {ingredient.nutritionGrade}
+                        </Text>
                     </View>
                     <View
                         style={styles.buttonContainer}

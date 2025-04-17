@@ -44,6 +44,7 @@ public class UserController {
 		return ResponseEntity.badRequest().body("Failed to delete user.");
 	}
 	
+	@CrossOrigin(origins = "*")
 	@PutMapping
 	public ResponseEntity<String> updateUser(@RequestBody User updatedUser) {
 		if (userService.authenticateUser(updatedUser) && userService.updateUser(updatedUser)) {
