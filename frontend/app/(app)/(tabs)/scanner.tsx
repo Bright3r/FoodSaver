@@ -57,7 +57,6 @@ export default function Scanner() {
           onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
           barcodeScannerSettings={{
             barcodeTypes: [
-              "qr",
               "ean13",
               "ean8",
               "upc_a",
