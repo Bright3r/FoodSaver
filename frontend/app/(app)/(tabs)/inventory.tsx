@@ -7,6 +7,8 @@ import {StatusBar} from "expo-status-bar";
 import { IngredientInventory } from '../../ingredientInterface'
 import {SERVER_URI} from "@/const"
 
+
+
 export default function Inventory() {
     const {session} = useSession();
     const [inventory, setInventory] = useState<IngredientInventory[]>([]);
@@ -21,9 +23,7 @@ export default function Inventory() {
         console.log(`Loading before fetch? ${loading}`);
         console.log(`Table loaded before fetch? ${isLoaded}`);
         try {
-            const uri =
-            Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-            SERVER_URI;
+            const uri = Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ?? SERVER_URI;
             await fetch(`http://${uri}/api/user?username=${username}`, {
                 method: 'GET',
                 headers: {"Content-Type": "application/json"}
@@ -53,6 +53,14 @@ export default function Inventory() {
         }, [session, refresh, key])
     );
 
+    const formatDate = (date: string | Date) => {
+        return new Date(date).toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        });
+    };
+      
     return (
         <View style={styles.container}>
             {loading && !isLoaded ? (
@@ -60,34 +68,24 @@ export default function Inventory() {
             ) : (
                 <FlatList 
                 data={inventory}
+                keyExtractor={(item, index) => `${item.name}-${index}`}
+                contentContainerStyle={{ paddingVertical: 12 }}
                 renderItem={({ item }) => {
-                    return (
-                        <View style={styles.tableContainer}>
-                            <View style={{flexDirection: 'row'}}>
-                                <View style={{width:90, marginBottom:0, borderWidth: 1, borderColor: "#ffffff"}}>
-                                    <View style={styles.cellContainer}>
-                                        <Text style={{color: "#fff", marginBottom: 0}}>{item.name}</Text>
-                                    </View>
-                                </View>
-                                <View style={{width:90, marginBottom:0, borderWidth: 1, borderColor: "#ffffff"}}>
-                                    <View style={styles.cellContainer}>
-                                        <Text style={{color: "#fff", marginBottom: 0}}>{item.qty}</Text>
-                                    </View>
-                                </View>
-                                <View style={{width:90, marginBottom:0, borderWidth: 1, borderColor: "#ffffff"}}>
-                                    <View style={styles.cellContainer}>
-                                        <Text style={{color: "#fff", marginBottom: 0}}>{item.purchaseDate.toString()}</Text>
-                                    </View>  
-                                </View>
-                                <View style={{width:90, marginBottom:0, borderWidth: 1, borderColor: "#ffffff"}}>
-                                    <View style={styles.cellContainer}>
-                                        <Text style={{color: "#fff", marginBottom: 0}}>{item.expirationDate.toString()}</Text>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                    );
-                }} />
+                  return (
+                    <View style={styles.card}>
+                      <Text style={styles.itemName}>{item.name}</Text>
+                      <Text style={styles.itemDetail}>Quantity: {item.qty}</Text>
+                      <Text style={styles.itemDetail}>
+                        Purchased: {formatDate(item.purchaseDate)}
+                      </Text>
+                      <Text style={styles.itemDetail}>
+                        Expires: {formatDate(item.expirationDate)}
+                      </Text>
+                    </View>
+                  );
+                }}
+              />
+              
             )}
             <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
@@ -96,32 +94,37 @@ export default function Inventory() {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: '#000000',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    tableContainer: {
-        flex: 1,
-        alignSelf: 'stretch',
-        flexDirection: 'row',
-        color: '#ffffff'
-    },
-    cellContainer: {
-        flex: 1,
-        alignSelf: 'stretch'
-    },
-    headerContainer: {
-        flex: 1,
-        alignSelf: 'stretch'
-    },
-    header: {
-        flex: 1,
-        color: '#fff',
-        fontSize: 24
+      flex: 1,
+      backgroundColor: '#000',
+      paddingTop: 20,
+      paddingHorizontal: 16,
     },
     text: {
-        color: '#fff',
+      color: '#fff',
+      fontSize: 18,
+      textAlign: 'center',
+      marginTop: 20,
+    },
+    card: {
+      backgroundColor: '#1a1a1a',
+      borderRadius: 10,
+      padding: 16,
+      marginBottom: 12,
+      shadowColor: '#fff',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    itemName: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: '#fff',
+      marginBottom: 8,
+    },
+    itemDetail: {
+      fontSize: 14,
+      color: '#ccc',
+      marginBottom: 4,
     },
 });
-
