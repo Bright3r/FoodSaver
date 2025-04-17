@@ -5,12 +5,12 @@ import {router} from "expo-router";
 import { SERVER_URI } from '@/const';
 
 const AuthContext = createContext<{
-    signIn: (username:string, password:string) => void;
+    signIn: (username: string, password: string) => Promise<{ success: boolean; message?: string }>;
     signOut: () => void;
     session?: string | null;
     isLoading: boolean;
 }>({
-    signIn: () => null,
+    signIn: async () => ({ success: false }),
     signOut: () => null,
     session: null,
     isLoading: false,
@@ -34,7 +34,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     return (
         <AuthContext.Provider
             value={{
-                signIn: async (username: string, password: string) => {
+                signIn: async (username: string, password: string): Promise<{ success: boolean; message?: string }> => {
                     // Perform sign-in logic here
                     try {
                         //need to find the ip of the localhost since the backend is not running on the same device
@@ -54,11 +54,14 @@ export function SessionProvider({ children }: PropsWithChildren) {
                             // Navigate after signing in. You may want to tweak this to ensure sign-in is
                             // successful before navigating.
                             router.navigate('/inventory');
+                            return { success: true, message: "Login Successful" };
                         } else {
-                            console.error('Signin failed', await response.text());
+                            console.log('Signin failed', await response.text());
+                            return { success: false, message: "Invalid Credentials" };
                         }
                     } catch (error) {
                         console.error('Signin failed', error);
+                        return { success: false, message: "Something went wrong, please try again later" };
                     }
                 },
                 signOut: () => {

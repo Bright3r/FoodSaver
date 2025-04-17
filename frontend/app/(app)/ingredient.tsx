@@ -200,9 +200,7 @@ export default function IngredientPage() {
                             style={styles.button}
                             onPress={() => {
                                 setShowDatePicker(true);
-                                console.log("SHOW DATE PICKER")
                                 Keyboard.dismiss();
-                                // setModalOpen(true);
                             }}
                         >
                             Save
@@ -252,15 +250,15 @@ export default function IngredientPage() {
                                     <Button
                                         title="Done"
                                         onPress={() => {
-                                        setExpirationDate(tempDate); // Apply date only when confirmed
-                                        setShowDatePicker(false);
-                                        setModalOpen(true); // Open confirmation modal
+                                            setExpirationDate(tempDate); // Apply date only when confirmed
+                                            setShowDatePicker(false);
+                                            setModalOpen(true); // Open confirmation modal
                                         }}
                                     />
                                     <Button
                                         title="Cancel"
                                         onPress={() => {
-                                        setShowDatePicker(false);
+                                            setShowDatePicker(false);
                                         }}
                                         color="#999"
                                     />
@@ -281,13 +279,21 @@ export default function IngredientPage() {
                                     <Text
                                         style={styles.button}
                                         onPress={() => {
-                                            saveIngredient(session, ingredient, expirationDate);
+                                            const updatedIngredient: Ingredient = {
+                                                ...ingredient,
+                                                name: itemName || ingredient.name,
+                                                description: itemDesc || ingredient.description,
+                                                imageUrl: ingredient.imageUrl,
+                                                nutritionGrade: ingredient.nutritionGrade
+                                            };
+                                        
+                                            saveIngredient(session, updatedIngredient, expirationDate);
+                                        
                                             router.replace({
                                                 pathname: '/(app)/(tabs)/inventory',
-                                                params: { 
-                                                    key: Date.now.toString()
-                                                 }
+                                                params: { key: Date.now().toString() }
                                             });
+                                        
                                             setModalOpen(false);
                                         }}
                                         >
