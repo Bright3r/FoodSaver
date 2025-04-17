@@ -19,6 +19,7 @@ import {StatusBar} from "expo-status-bar";
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { Ingredient } from '../ingredientInterface';
 import { SERVER_URI } from '@/const';
+import DismissibleTextInput from '../components/dismissableTextInput';
 
 
 const fetchIngredientData = async (productCode: number): Promise<Ingredient | null> => {
@@ -129,6 +130,7 @@ export default function IngredientPage() {
     const [expirationDate, setExpirationDate] = useState<Date>(new Date());
     const today = new Date();
     const router = useRouter();
+    const [tempDate, setTempDate] = useState<Date>(expirationDate)
 
     useEffect(() => {
         const getIngredient = async () => {
@@ -151,7 +153,7 @@ export default function IngredientPage() {
                         style={styles.nameContainer}
                         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     >
-                        <TextInput 
+                        <DismissibleTextInput 
                             style={styles.name}
                             placeholder="Ingredient name"
                             onChangeText={val => setItemName(val)}
@@ -159,7 +161,7 @@ export default function IngredientPage() {
                             submitBehavior="blurAndSubmit"
                         >
                             {ingredient.name}
-                        </TextInput>
+                        </DismissibleTextInput >
                     </KeyboardAvoidingView>
                     <KeyboardAvoidingView 
                         style={styles.imageContainer}
@@ -173,7 +175,7 @@ export default function IngredientPage() {
                         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                         keyboardVerticalOffset={Platform.OS === 'ios' ? 25 : 0}
                     >
-                        <TextInput 
+                        <DismissibleTextInput 
                             style={styles.description}
                             onChangeText={val => setItemDesc(val)}
                             multiline={true}
@@ -182,7 +184,7 @@ export default function IngredientPage() {
                             placeholder="Ingredient description"
                         >
                             {ingredient.description}
-                        </TextInput>
+                        </DismissibleTextInput >
                     </KeyboardAvoidingView>
                     <View 
                         style={styles.nutritionGradeContainer}
@@ -196,33 +198,80 @@ export default function IngredientPage() {
                     >
                         <Text
                             style={styles.button}
-                            onPress={() => setShowDatePicker(true)}
+                            onPress={() => {
+                                setShowDatePicker(true);
+                                console.log("SHOW DATE PICKER")
+                                Keyboard.dismiss();
+                                // setModalOpen(true);
+                            }}
                         >
                             Save
                         </Text>
                         <Text style={styles.button} onPress={() => router.back()}>Back</Text>
 
                         {showDatePicker && (
-                            <View style={{ marginTop: 10, alignItems: 'center' }}>
-                                <Text style={styles.text}>Select expiration date:</Text>
-                                <DateTimePicker
-                                    value={expirationDate}
-                                    mode="date"
-                                    display="default"
-                                    minimumDate={today}
-                                    maximumDate={new Date(2026, 5, 1)}
-                                    onChange={(event, selectedDate) => {
+                            Platform.OS === 'android' ? (
+                                <>
+                                    <DateTimePicker
+                                        value={expirationDate}
+                                        mode="date"
+                                        display="calendar"
+                                        minimumDate={today}
+                                        maximumDate={new Date(2026, 5, 1)}
+                                        onChange={(event, selectedDate) => {
+                                            if (selectedDate) {
+                                                setTempDate(selectedDate);
+                                            }
+                                        }}
+                                    />
+                                    <Button
+                                        title="Done"
+                                        onPress={() => {
+                                            setExpirationDate(tempDate);
+                                            setShowDatePicker(false);
+                                            setModalOpen(true);
+                                        }}
+                                    />
+                                </>
+                            ) : (
+                                <Modal transparent={true} animationType="fade" visible={showDatePicker}>
+                                <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#000000aa' }}>
+                                    <View style={{ backgroundColor: '#222', margin: 20, borderRadius: 10, padding: 20 }}>
+                                    <DateTimePicker
+                                        value={tempDate}
+                                        mode="date"
+                                        display="spinner"
+                                        minimumDate={today}
+                                        maximumDate={new Date(2026, 5, 1)}
+                                        onChange={(event, selectedDate) => {
                                         if (selectedDate) {
-                                            console.log(`Expiration date set to ${selectedDate}`);
-                                            setExpirationDate(selectedDate);
-                                            setShowDatePicker(false); // optional if you store it in state
-                                            setModalOpen(true); // Open confirmation modal right after date is picked
+                                            setTempDate(selectedDate); // Only update the temporary date
                                         }
-                                    }}
-                                />
-                            </View>
+                                        }}
+                                    />
+                                    <Button
+                                        title="Done"
+                                        onPress={() => {
+                                        setExpirationDate(tempDate); // Apply date only when confirmed
+                                        setShowDatePicker(false);
+                                        setModalOpen(true); // Open confirmation modal
+                                        }}
+                                    />
+                                    <Button
+                                        title="Cancel"
+                                        onPress={() => {
+                                        setShowDatePicker(false);
+                                        }}
+                                        color="#999"
+                                    />
+                                    </View>
+                                </View>
+                                </Modal>
+                            )
                         )}
-                        
+
+
+
                         <Modal transparent={true} visible={isModalOpen} animationType="fade" onRequestClose={() => setModalOpen(false)}>
                             <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
                                 <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>

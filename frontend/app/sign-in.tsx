@@ -4,6 +4,7 @@ import {StyleSheet, Text, TextInput, View} from 'react-native';
 import { useSession } from './ctx';
 import React, {useState} from "react";
 import {StatusBar} from "expo-status-bar";
+import DismissibleTextInput from './components/dismissableTextInput';
 
 export default function SignIn() {
     const { signIn } = useSession();
@@ -21,13 +22,13 @@ export default function SignIn() {
             >
                 Sign In
             </Text>
-            <TextInput
+            <DismissibleTextInput
                 style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginBottom: 20, width: 250, height: 50}}
                 placeholder="Username"
                 placeholderTextColor="#ffffff"
                 onChangeText={val => setUsername(val)}
             />
-            <TextInput
+            <DismissibleTextInput
                 style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginBottom: 20, width: 250, height: 50}}
                 secureTextEntry={true}
                 placeholder="Password"

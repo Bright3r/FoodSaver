@@ -4,6 +4,7 @@ import {router} from "expo-router";
 import Constants from "expo-constants";
 import {StatusBar} from "expo-status-bar";
 import { SERVER_URI } from '@/const';
+import DismissibleTextInput from './components/dismissableTextInput';
 
 const handleSubmit = async (firstname:string,lastname:string,username:string,password:string) => {
 
@@ -44,25 +45,25 @@ export default function SignUp() {
             >
                 Sign Up
             </Text>
-            <TextInput
+            <DismissibleTextInput
                 style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginBottom: 10, width: 250, height: 50}}
                 placeholder="First Name"
                 placeholderTextColor="#ffffff"
                 onChangeText={val => setFirstname(val)}
             />
-            <TextInput
+            <DismissibleTextInput
                 style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginBottom: 20, width: 250, height: 50}}
                 placeholder="Last Name"
                 placeholderTextColor="#ffffff"
                 onChangeText={val => setLastname(val)}
             />
-            <TextInput
+            <DismissibleTextInput
                 style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginBottom: 10, width: 250, height: 50}}
                 placeholder="Username"
                 placeholderTextColor="#ffffff"
                 onChangeText={val => setUsername(val)}
             />
-            <TextInput
+            <DismissibleTextInput
                 style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginBottom: 20, width: 250, height: 50}}
                 secureTextEntry={true}
                 placeholder="Password"

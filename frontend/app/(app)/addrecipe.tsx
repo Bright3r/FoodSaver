@@ -5,6 +5,7 @@ import {ScrollView, StyleSheet, Text, TextInput, View} from "react-native";
 import {StatusBar} from "expo-status-bar";
 import Constants from "expo-constants";
 import { SERVER_URI } from "@/const";
+import DismissibleTextInput from "../components/dismissableTextInput";
 
 const saveRecipe = async(username:string | null | undefined, recipeTitle:string, recipeTime:number, recipeIngredients:string[], recipeInstructions:string[]): Promise<void> => {
     try {
@@ -92,14 +93,14 @@ export default function AddRecipePage() {
     return(
         <View style={styles.container}>
             <View style={styles.buttonContainer}>
-                <TextInput
+                <DismissibleTextInput
                     style={styles.title}
                     placeholder="Recipe title"
                     onChangeText={val => setRecipeTitle(val)}
                     placeholderTextColor={"#696969"}
                 />
             </View>
-            <TextInput
+            <DismissibleTextInput
                 style={{borderColor: '#ffffff', borderWidth: 1, backgroundColor: '#141414', borderRadius: 10, marginBottom:10, paddingLeft: 10, color: '#fff'}}
                 placeholder="Preparation time (minutes)"
                 inputMode='numeric'
@@ -110,7 +111,7 @@ export default function AddRecipePage() {
                 style={{borderColor: '#ffffff', borderWidth: 1, backgroundColor: '#141414', borderRadius: 10, marginBottom:10, height: 50}}
                 contentContainerStyle={{flexGrow: 1}}
             >
-                <TextInput
+                <DismissibleTextInput
                     style={styles.description}
                     placeholder="Recipe ingredients&#10;New line for each ingredient"
                     submitBehavior='newline'
@@ -124,7 +125,7 @@ export default function AddRecipePage() {
                 style={{borderColor: '#ffffff', borderWidth: 1, backgroundColor: '#141414', borderRadius: 10, marginBottom:10, height: '40%'}}
                 contentContainerStyle={{flexGrow: 1}}
             >
-                <TextInput
+                <DismissibleTextInput
                     style={styles.description}
                     placeholder="Recipe instructions&#10;New line for each step"
                     submitBehavior='newline'
