@@ -1,20 +1,28 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Text, View, StyleSheet, FlatList } from 'react-native';
+import { Text, View, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useSession } from '../../ctx';
 import Constants from 'expo-constants';
 import {StatusBar} from "expo-status-bar";
 import { IngredientInventory } from '../../ingredientInterface'
 import {SERVER_URI} from "@/const"
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 
 
+/**
+ * Features to add:
+ *  Edit ingredient item
+ *  Delete ingredient item
+ *  
+ */
 export default function Inventory() {
     const {session} = useSession();
     const [inventory, setInventory] = useState<IngredientInventory[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
     const { refresh, key } = useLocalSearchParams();
+    const router = useRouter();
 
     const getInventory = async (username:string | null | undefined): Promise<void> => {
         if (!username) return;
@@ -60,6 +68,54 @@ export default function Inventory() {
           day: 'numeric',
         });
     };
+
+    const handleEditItem = (item: IngredientInventory)  => {
+      console.log("Editing item...");
+      router.push({
+        pathname: '../ingredient',
+        params: {
+          itemData: JSON.stringify(item),
+          mode: 'edit'
+        },
+      });
+    };
+
+    const handleDeleteItem = async (item: IngredientInventory) => {
+      Alert.alert(
+        "Delete Item",
+        `Are you sure you want to delete ${item.name}?`,
+        [
+          {text: "Cancel", style: "cancel"},
+          {
+            text: "Delete", style: "destructive", onPress: async () => {
+              try {
+                const uri = Constants.expoConfig?.hostUri?.split(':')?.shift()?.concat(":8083") ?? SERVER_URI;
+                console.log(`Deleting item...`);
+                const getResponse = await fetch(`http://${uri}/api/user?username=${session}`, {
+                  method: 'GET',
+                  headers: {"Content-Type": "application/json"}
+                });
+                const data = await getResponse.json();
+
+                console.log(`Inventory to modify: ${data.inventory}`)
+
+                const updatedInventory = data.inventory.filter((i: IngredientInventory) => i.name !== item.name);
+
+                await fetch(`http://${uri}/api/user`, {
+                  method: 'PUT',
+                  headers: {"Content-Type": "application/json"},
+                  body: JSON.stringify({...data, inventory: updatedInventory})
+                });
+
+                getInventory(session);
+              } catch (error) {
+                console.error("Failed to delete item", error);
+              }
+            }
+          }
+        ]
+      );
+    };
       
     return (
         <View style={styles.container}>
@@ -73,14 +129,26 @@ export default function Inventory() {
                 renderItem={({ item }) => {
                   return (
                     <View style={styles.card}>
-                      <Text style={styles.itemName}>{item.name}</Text>
-                      <Text style={styles.itemDetail}>Quantity: {item.qty}</Text>
-                      <Text style={styles.itemDetail}>
-                        Purchased: {formatDate(item.purchaseDate)}
-                      </Text>
-                      <Text style={styles.itemDetail}>
-                        Expires: {formatDate(item.expirationDate)}
-                      </Text>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <View>
+                          <Text style={styles.itemName}>{item.name}</Text>
+                          <Text style={styles.itemDetail}>Quantity: {item.qty}</Text>
+                          <Text style={styles.itemDetail}>
+                            Purchased: {formatDate(item.purchaseDate)}
+                          </Text>
+                          <Text style={styles.itemDetail}>
+                            Expires: {formatDate(item.expirationDate)}
+                          </Text>
+                        </View>
+                        <View style={styles.iconContainer}>
+                          <TouchableOpacity onPress={() => handleEditItem(item)} style={{marginBottom:30}}>
+                            <Ionicons name={'create'} size={24} color="#ffffff" />
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => handleDeleteItem(item)}>
+                            <Ionicons name={'trash-bin'} size={24} color="#ffffff" />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
                     </View>
                   );
                 }}
@@ -127,4 +195,11 @@ const styles = StyleSheet.create({
       color: '#ccc',
       marginBottom: 4,
     },
+    iconContainer: {
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      marginLeft: 10,
+      marginBottom: 10
+    }
 });

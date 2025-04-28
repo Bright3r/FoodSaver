@@ -11,5 +11,6 @@ export interface IngredientInventory {
     name:string,
     qty:number,
     purchaseDate:Date,
-    expirationDate:Date
+    expirationDate:Date,
+    productCode?:number
 }

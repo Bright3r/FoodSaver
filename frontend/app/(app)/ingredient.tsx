@@ -20,6 +20,7 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { Ingredient } from '../ingredientInterface';
 import { SERVER_URI } from '@/const';
 import DismissibleTextInput from '../components/dismissableTextInput';
+import { parse } from '@babel/core';
 
 
 const fetchIngredientData = async (productCode: number): Promise<Ingredient | null> => {
@@ -47,14 +48,8 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
 };
 
 
-
-/*
- * Features to add:
- *  User inputs their purchase date.
- * 
- **/
-const saveIngredient = async(username:string | null | undefined,  
-    ingredient:Ingredient, expiration:Date): Promise<void> => {
+const saveIngredient = async (username:string | null | undefined,  
+    ingredient:Ingredient, expiration:Date, isEdit:boolean, originalName?:string): Promise<void> => {
     try {
         const uri =
             Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
@@ -75,9 +70,16 @@ const saveIngredient = async(username:string | null | undefined,
             const today = new Date();
 
             console.log(`Updating inventory...`);
-            let updatedData = JSON.parse(responseStr);
+            let inventory = responseData.inventory || [];
 
-            updatedData['inventory'].push({
+            if (isEdit && originalName) {
+                console.log(`Editing ${originalName}`);
+                inventory = inventory.filter((i: Ingredient) => i.name !== originalName);
+            }
+
+            // let updatedData = JSON.parse(responseStr);
+
+            inventory.push({
                 name: ingredient.name,
                 qty: 1,
                 purchaseDate: today, // User should be able to set their own purchase date.
@@ -85,12 +87,12 @@ const saveIngredient = async(username:string | null | undefined,
             });
 
             console.log(`Item added: ${ingredient.name}`);
-            console.log(`${username}'s inventory: ${JSON.stringify(updatedData['inventory'])}`);
+            console.log(`${username}'s inventory: ${JSON.stringify(inventory)}`);
 
             const putResponse = await fetch(`http://${uri}/api/user`, {
                 method: 'PUT',
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(updatedData)
+                body: JSON.stringify({...responseData, inventory})
             })
 
             console.log(putResponse.status);
@@ -98,7 +100,7 @@ const saveIngredient = async(username:string | null | undefined,
 
             if (putResponse.ok) {
                 console.log(`${username}'s inventory successfully updated`);
-                alert("Item added to inventory!");
+                alert(isEdit ? "Item updated!" : "Item added to inventory!");
                 router.push({
                     pathname: './inventory',
                     params: { key: Date.now().toString() }
@@ -115,11 +117,12 @@ const saveIngredient = async(username:string | null | undefined,
     }
 };
 
+
 export default function IngredientPage() {
-    const {session} = useSession(); // For storing ingredients: implement this
+    const {session} = useSession();
     const [ingredient, setIngredient] = useState<Ingredient | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const { scannedData } = useLocalSearchParams();
+    const { scannedData, itemData, mode } = useLocalSearchParams();
     const [confirmItemSave, setConfirmItemSave] = useState(false);
     const [itemName, setItemName] = useState('');
     const [itemDesc, setItemDesc] = useState('');
@@ -127,21 +130,47 @@ export default function IngredientPage() {
     const [isModalOpen, setModalOpen] = useState(false);
     const parsedScannedData = scannedData ? parseInt(scannedData as string) : NaN;
     const { refresh } = useLocalSearchParams();
+    const [saving, setSaving] = useState(false);
     const [expirationDate, setExpirationDate] = useState<Date>(new Date());
     const today = new Date();
+    const isEditMode = mode === 'edit';
+    const originalName = ingredient?.name;
     const router = useRouter();
-    const [tempDate, setTempDate] = useState<Date>(expirationDate)
+    const [tempDate, setTempDate] = useState<Date>(expirationDate);
 
     useEffect(() => {
         const getIngredient = async () => {
             setLoading(true);
-            const fetchedIngredient = await fetchIngredientData(parsedScannedData);
-            setIngredient(fetchedIngredient);
+
+            if (itemData) {
+                console.log("Loading ingredient from itemData"); 
+                const parsedItem = JSON.parse(itemData as string);
+                setIngredient({
+                    name: parsedItem.name,
+                    description: parsedItem.description ?? "Unknown description",
+                    nutritionGrade: parsedItem.nutritionGrade ?? "Unknown",
+                    imageUrl: parsedItem.imageUrl ?? ''
+                });
+                setItemName(parsedItem.name);
+                setItemDesc(parsedItem.description);
+            }
+            else if (scannedData) {
+                console.log("Loading ingredient from scannedData");
+                const parsedScannedData = JSON.parse(scannedData as string);
+                const fetchedIngredient = await fetchIngredientData(parsedScannedData);
+                setIngredient(fetchedIngredient);
+                setItemName(fetchedIngredient?.name ?? '');
+                setItemDesc(fetchedIngredient?.description ?? '');
+            }
+            else {
+                console.error("No scannedData or itemData.");
+            }
+
             setLoading(false);
         };
 
         getIngredient();
-    }, [scannedData])
+    }, [scannedData, itemData])
 
     return(
         <View style={styles.container}>
@@ -279,6 +308,8 @@ export default function IngredientPage() {
                                     <Text
                                         style={styles.button}
                                         onPress={() => {
+                                            if (saving) return;
+                                            setSaving(true);
                                             const updatedIngredient: Ingredient = {
                                                 ...ingredient,
                                                 name: itemName || ingredient.name,
@@ -286,14 +317,12 @@ export default function IngredientPage() {
                                                 imageUrl: ingredient.imageUrl,
                                                 nutritionGrade: ingredient.nutritionGrade
                                             };
-                                        
-                                            saveIngredient(session, updatedIngredient, expirationDate);
-                                        
+                                            saveIngredient(session, updatedIngredient, expirationDate, isEditMode, originalName);
                                             router.replace({
                                                 pathname: '/(app)/(tabs)/inventory',
                                                 params: { key: Date.now().toString() }
                                             });
-                                        
+                                            setSaving(false);
                                             setModalOpen(false);
                                         }}
                                         >
@@ -318,6 +347,7 @@ export default function IngredientPage() {
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
