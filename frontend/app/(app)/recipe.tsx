@@ -1,11 +1,67 @@
-import React from "react";
-import {useLocalSearchParams} from "expo-router";
-import {StyleSheet, Text, View} from "react-native";
+import React, {useState} from "react";
+import {router, useLocalSearchParams} from "expo-router";
+import {Modal, StyleSheet, Text, View} from "react-native";
 import {ScrollView} from "react-native";
 import {StatusBar} from "expo-status-bar";
+import Constants from "expo-constants";
+import {SERVER_URI} from "@/const";
+import {useSession} from "@/app/ctx";
+
+const deleteRecipe = async(username:string | null | undefined, recipeTitle:string): Promise<void> => {
+    try {
+        //set endpoint once it is created
+        const uri =
+            Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
+            SERVER_URI;
+        const response = await fetch(`http://${uri}/api/user?username=${username}`, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'}
+        })
+
+        console.log(`OK? ${response.ok}`);
+        console.log(`Username: ${username}`);
+
+        if (response.ok) {
+            const responseData = await response.json();
+            let responseStr = JSON.stringify(responseData);
+
+
+            console.log(`Updating recipes...`);
+            let updatedData = JSON.parse(responseStr);
+
+            updatedData['recipes'] = updatedData['recipes'].filter((item: { title: string; }) => item.title !== recipeTitle);
+            const response2 = await fetch(`http://${uri}/api/user`, {
+                method: 'PUT',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(updatedData)
+            })
+            console.log(`Recipe deleted: ${recipeTitle}`);
+            console.log(`${username}'s recipes: ${JSON.stringify(updatedData['recipes'])}`);
+            alert("Recipe deleted!");
+
+            console.log(response2.status);
+            console.log(`OK? ${response2.ok}`);
+
+            if (response2.ok) {
+                console.log(`${username}'s recipes successfully updated`);
+                router.replace('/recipes');
+            } else {
+                console.error("Failed to delete recipe", await response.text());
+            }
+
+            router.replace('/recipes');
+        } else {
+            console.error('Failed to delete recipe', await response.text());
+        }
+    } catch (error) {
+        console.error("Failed to delete recipe", error);
+    }
+};
 
 export default function RecipePage() {
     const { title, ingredients, preparationTime, instructions } = useLocalSearchParams();
+    const [isModalOpen, setModalOpen] = useState(false);
+    const {session} = useSession();
 
     return(
         <View style={styles.container}>
@@ -21,6 +77,48 @@ export default function RecipePage() {
             <ScrollView style={{borderColor: '#ffffff', borderWidth: 1, backgroundColor: '#141414', borderRadius: 10}}>
                 <Text style={styles.description}>{instructions}</Text>
             </ScrollView>
+            <View style={{flexDirection: 'row',justifyContent: 'flex-end'}}>
+                <Text
+                    style={styles.savebutton}
+                    onPress={() => {
+                        router.push({
+                            pathname: "/(app)/editrecipe",
+                            params: { title, ingredients, preparationTime, instructions },
+                        });
+                    }}
+                >
+                    Edit
+                </Text>
+                <Text
+                    style={styles.savebutton}
+                    onPress={() => {
+                        setModalOpen(true);
+                    }}
+                >
+                    Delete
+                </Text>
+                <Modal transparent={true} visible={isModalOpen} animationType="fade" onRequestClose={() => setModalOpen(false)}>
+                    <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+                        <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+                            <Text style={{color: '#ffffff', fontSize: 24}}>Delete this recipe?</Text>
+                        </View>
+                        <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+                            <Text
+                                style={styles.savebuttontext}
+                                onPress={() => {
+                                    deleteRecipe(session,title as string);
+                                    setModalOpen(false);
+                                }}
+                            >
+                                Confirm
+                            </Text>
+                            <Text style={styles.savebuttontext} onPress={() => setModalOpen(false)}>
+                                Cancel
+                            </Text>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
             <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
     );
@@ -76,6 +174,26 @@ const styles = StyleSheet.create({
         textAlignVertical: 'center',
         width: 50,
         fontSize: 30
+    },
+    savebuttontext: {
+        color: '#fff',
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        width: 100,
+        fontSize: 30,
+        marginBottom: 10
+    },
+    savebutton: {
+        color: '#fff',
+        borderWidth: 1,
+        borderColor: '#ffffff',
+        borderRadius: 10,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        width: 110,
+        height: 40,
+        padding: 10,
+        margin: 10
     },
 });
 

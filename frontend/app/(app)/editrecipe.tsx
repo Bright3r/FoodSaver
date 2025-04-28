@@ -1,13 +1,13 @@
 import {useSession} from "@/app/ctx";
 import React, {useState} from "react";
-import {router} from "expo-router";
+import {router, useLocalSearchParams} from "expo-router";
 import {ScrollView, StyleSheet, Text, View} from "react-native";
 import {StatusBar} from "expo-status-bar";
 import Constants from "expo-constants";
 import { SERVER_URI } from "@/const";
 import DismissibleTextInput from "../components/dismissableTextInput";
 
-const saveRecipe = async(username:string | null | undefined, recipeTitle:string, recipeTime:number, recipeIngredients:string[], recipeInstructions:string[]): Promise<void> => {
+const saveRecipe = async(username:string | null | undefined, oldTitle:string, recipeTitle:string, recipeTime:number, recipeIngredients:string, recipeInstructions:string): Promise<void> => {
     try {
         //set endpoint once it is created
         const uri =
@@ -24,33 +24,31 @@ const saveRecipe = async(username:string | null | undefined, recipeTitle:string,
         if (response.ok) {
             const responseData = await response.json();
             let responseStr = JSON.stringify(responseData);
-            // console.log(`Response Data: ${responseStr}`);
 
 
             console.log(`Updating recipes...`);
             let updatedData = JSON.parse(responseStr);
-            let objRecipes = updatedData['recipes'];
-
-            const dupe = objRecipes.find((item: {
-                title:string;
-            }) => {
-                console.log(`recipe: ${item.title}`);
-                if (item.title === recipeTitle) {
-                    console.error(`Recipe with title '${recipeTitle}' already exists`);
-                    return true;
+            for(var i = 0; i<updatedData['recipes'].length; i++){
+                if(updatedData['recipes'][i].title === oldTitle){
+                    updatedData['recipes'][i].title = recipeTitle;
+                    updatedData['recipes'][i].preparationTime = recipeTime;
+                    if(recipeIngredients === ""){
+                        updatedData['recipes'][i].ingredients = [];
+                    }
+                    else{
+                        updatedData['recipes'][i].ingredients = recipeIngredients.split("\n");
+                    }
+                    if(recipeInstructions === ""){
+                        updatedData['recipes'][i].instructions = [];
+                    }
+                    else {
+                        updatedData['recipes'][i].instructions = recipeInstructions.split("\n");
+                    }
                 }
-            });
-            if(typeof dupe === "undefined") {
-                updatedData['recipes'].push({
-                    title: recipeTitle,
-                    ingredients: recipeIngredients,
-                    preparationTime: recipeTime, // User should be able to set their own purchase date.
-                    instructions: recipeInstructions // User should be able to set their own expiration date.
-                });
-                console.log(`Recipe added: ${recipeTitle}`);
-                console.log(`${username}'s recipes: ${JSON.stringify(updatedData['recipes'])}`);
-                alert("Recipe added!");
             }
+            console.log(`Recipe added: ${recipeTitle}`);
+            console.log(`${username}'s recipes: ${JSON.stringify(updatedData['recipes'])}`);
+            alert("Recipe edited!");
 
             const response2 = await fetch(`http://${uri}/api/user`, {
                 method: 'PUT',
@@ -75,15 +73,15 @@ const saveRecipe = async(username:string | null | undefined, recipeTitle:string,
     } catch (error) {
         console.error("Failed to save recipe", error);
     }
-    // router.replace('/recipes');
 };
 
-export default function AddRecipePage() {
+export default function EditRecipePage() {
     const {session} = useSession();
-    const [recipeTitle, setRecipeTitle] = useState('');
-    const [recipeIngredients, setRecipeIngredients] = useState<string[]>([]);
-    const [recipeTime, setRecipeTime] = useState(0);
-    const [recipeInstructions, setRecipeInstructions] = useState<string[]>([]);
+    const { title, ingredients, preparationTime, instructions } = useLocalSearchParams();
+    const [recipeTitle, setRecipeTitle] = useState(title as string);
+    const [recipeIngredients, setRecipeIngredients] = useState(ingredients as string);
+    const [recipeTime, setRecipeTime] = useState(Number(preparationTime));
+    const [recipeInstructions, setRecipeInstructions] = useState(instructions as string);
 
 
     const onChanged = (text:string) => {
@@ -98,7 +96,9 @@ export default function AddRecipePage() {
                     placeholder="Recipe title"
                     onChangeText={val => setRecipeTitle(val)}
                     placeholderTextColor={"#696969"}
-                />
+                    value={recipeTitle as string}
+                >
+                </DismissibleTextInput>
             </View>
             <DismissibleTextInput
                 style={{borderColor: '#ffffff', borderWidth: 1, backgroundColor: '#141414', borderRadius: 10, marginBottom:10, paddingLeft: 10, color: '#fff', height: 40}}
@@ -106,7 +106,9 @@ export default function AddRecipePage() {
                 inputMode='numeric'
                 onChangeText={val => onChanged(val)}
                 placeholderTextColor={"#696969"}
-            />
+                value={String(recipeTime)}
+            >
+            </DismissibleTextInput>
             <ScrollView
                 style={{borderColor: '#ffffff', borderWidth: 1, backgroundColor: '#141414', borderRadius: 10, marginBottom:10, height: 50}}
                 contentContainerStyle={{flexGrow: 1}}
@@ -116,10 +118,12 @@ export default function AddRecipePage() {
                     placeholder="Recipe ingredients&#10;New line for each ingredient"
                     submitBehavior='newline'
                     multiline={true}
-                    onChangeText={val => setRecipeIngredients(val.split("\n"))}
+                    onChangeText={val => setRecipeIngredients(val)}
                     placeholderTextColor={"#696969"}
                     textAlignVertical={"top"}
-                />
+                    value={recipeIngredients as string}
+                >
+                </DismissibleTextInput>
             </ScrollView>
             <ScrollView
                 style={{borderColor: '#ffffff', borderWidth: 1, backgroundColor: '#141414', borderRadius: 10, marginBottom:10, height: '40%'}}
@@ -130,17 +134,19 @@ export default function AddRecipePage() {
                     placeholder="Recipe instructions&#10;New line for each step"
                     submitBehavior='newline'
                     multiline={true}
-                    onChangeText={val => setRecipeInstructions(val.split("\n"))}
+                    onChangeText={val => setRecipeInstructions(val)}
                     placeholderTextColor={"#696969"}
                     textAlignVertical={"top"}
-                />
+                    value={recipeInstructions as string}
+                >
+                </DismissibleTextInput>
             </ScrollView>
             <View style={{flexDirection: 'row',justifyContent: 'flex-end'}}>
                 <Text
                     style={styles.savebutton}
                     onPress={() => {
                         // Implement inventory functionality.
-                        saveRecipe(session, recipeTitle, recipeTime, recipeIngredients, recipeInstructions);
+                        saveRecipe(session, title as string, recipeTitle, recipeTime, recipeIngredients, recipeInstructions);
                     }}
                 >
                     Save

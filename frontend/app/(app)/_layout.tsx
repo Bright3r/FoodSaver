@@ -2,7 +2,6 @@ import { Text } from 'react-native';
 import { Redirect, Stack } from 'expo-router';
 
 import { useSession } from '../ctx';
-import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function AppLayout() {
     const { session, isLoading } = useSession();
@@ -51,6 +50,12 @@ export default function AppLayout() {
                 name="recipe"
                 options={{
                     title: 'Recipe',
+                }}
+            />
+            <Stack.Screen
+                name="editrecipe"
+                options={{
+                    title: 'Edit Recipe',
                 }}
             />
         </Stack>
