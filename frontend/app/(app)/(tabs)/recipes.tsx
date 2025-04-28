@@ -11,6 +11,8 @@ import { SERVER_URI } from '@/const';
 export default function Recipes() {
     const { session } = useSession();
     const [recipeList, setRecipeList] = useState<Recipe[]>([]);
+    const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
+    const [searchText, setSearchText] = useState("");
 
     //sample recipe data
     //just a title and description for each recipe for now
@@ -54,6 +56,7 @@ export default function Recipes() {
             .then((data: any) => {
                 console.log("Retrieving recipes...");
                 setRecipeList(data.recipes ?? []);
+                setAllRecipes(data.recipes ?? []);
 
                 // DEBUG: inventoryStr - for checking the correctness of response data.
                 const recipesStr = JSON.stringify(data.recipes);
@@ -65,8 +68,15 @@ export default function Recipes() {
 
     };
 
+    //implement recipe endpoint
+    const searchRecipes = async (searchText:string) => {
+        //searches based on substrings in the title or ingredients
+        setRecipeList(allRecipes.filter((item: { title: string; ingredients: string[]; }) => item.title.toLowerCase().includes(searchText) || item.ingredients.some(e => e.toLowerCase().includes(searchText))));
+    };
+
     useFocusEffect(
         useCallback(() => {
+            setSearchText("");
             getRecipes(session);
         }, [session])
     );
@@ -77,7 +87,11 @@ export default function Recipes() {
                 style={{color: '#fff', width: "auto", height: 50, borderWidth: 1, borderColor: '#ffffff', borderRadius: 10, marginBottom: 5}}
                 placeholder="Search"
                 placeholderTextColor="#696969"
-                onChangeText={()=>{}}
+                onChangeText={val=>{
+                    setSearchText(val);
+                    searchRecipes(val);
+                }}
+                value={searchText}
             />
             <FlatList
                 data={recipeList}
