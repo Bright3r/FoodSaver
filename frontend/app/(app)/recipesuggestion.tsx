@@ -1,18 +1,15 @@
-import {Text, View, StyleSheet, FlatList, TextInput} from 'react-native';
-import { useSession } from '@/app/ctx';
-import {router, useFocusEffect} from "expo-router";
-import React, {useCallback, useState} from "react";
+import {Text, View, StyleSheet, FlatList, TextInput, Modal} from 'react-native';
+import {router} from "expo-router";
+import React, {useState} from "react";
 import { StatusBar } from 'expo-status-bar';
 import Constants from "expo-constants";
 import { SERVER_URI } from '@/const';
 
 
 
-export default function Recipes() {
-    const { session } = useSession();
-    const [recipeList, setRecipeList] = useState<Recipe[]>([]);
-    const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
-    const [searchText, setSearchText] = useState("");
+export default function RecipeSuggestions() {
+    const [suggestedRecipes, setSuggestedRecipes] = useState<Recipe[]>([]);
+    const [isLoading, setLoading] = useState(false);
 
     //sample recipe data
     //just a title and description for each recipe for now
@@ -25,13 +22,14 @@ export default function Recipes() {
 
     type ItemProps = {title: string, ingredients: string, preparationTime: number, instructions: string, };
 
-    const Item = ({title, ingredients, preparationTime, instructions}: ItemProps) =>
+
+    const SuggestedItem = ({title, ingredients, preparationTime, instructions}: ItemProps) =>
         <View style={styles.item}>
             <Text
                 style= {styles.title}
                 onPress={() => {
                     router.push({
-                        pathname: "/recipe",
+                        pathname: "/addsuggestedrecipe",
                         params: { title, ingredients, preparationTime, instructions },
                     });
                 }}>
@@ -41,78 +39,55 @@ export default function Recipes() {
     ;
 
 
-
-
-    //implement recipe endpoint
-    const getRecipes = async (username:string | null | undefined) => {
+    const suggestionSearch = async (ingredients:string) => {
         try {
+            setLoading(true);
+            console.log(`Ingredients: ${ingredients}`);
             const uri =
                 Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
                 SERVER_URI;
-            await fetch(`http://${uri}/api/user?username=${username}`, {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json'}
+            await fetch(`http://${uri}/api/recipe/search`, {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(ingredients)
             })
-            .then(res => res.json())
-            .then((data: any) => {
-                console.log("Retrieving recipes...");
-                setRecipeList(data.recipes ?? []);
-                setAllRecipes(data.recipes ?? []);
+                .then(res => res.json())
+                .then((data: any) => {
+                    console.log("Retrieving recipes...");
+                    setSuggestedRecipes(data ?? []);
 
-                // DEBUG: inventoryStr - for checking the correctness of response data.
-                const recipesStr = JSON.stringify(data.recipes);
-                console.log(`Recipes: ${recipesStr}`);
-            });
+                    const recipesStr = JSON.stringify(data);
+                    console.log(`Recipes: ${recipesStr}`);
+                });
+            setLoading(false);
         } catch (error) {
             console.error("Failed to get recipes", error);
+            setLoading(false);
         }
 
     };
 
-    //implement recipe endpoint
-    const searchRecipes = async (searchText:string) => {
-        //searches based on substrings in the title or ingredients
-        setRecipeList(allRecipes.filter((item: { title: string; ingredients: string[]; }) => item.title.toLowerCase().includes(searchText) || item.ingredients.some(e => e.toLowerCase().includes(searchText))));
-    };
-
-
-    useFocusEffect(
-        useCallback(() => {
-            setSearchText("");
-            getRecipes(session);
-        }, [session])
-    );
-
     return (
         <View style={styles.container}>
-            <Text
-                style={styles.suggestionbutton}
-                onPress={() =>
-                    router.navigate('/recipesuggestion')
-                }
-            >
-                {"Recipe Suggestions"}
-            </Text>
             <TextInput
                 style={{color: '#fff', width: "auto", height: 50, borderWidth: 1, borderColor: '#ffffff', borderRadius: 10, marginBottom: 5}}
-                placeholder="Search"
+                placeholder="Ingredients (comma separated, press enter to submit)"
                 placeholderTextColor="#696969"
-                onChangeText={val=>{
-                    setSearchText(val);
-                    searchRecipes(val);
-                }}
-                value={searchText}
+                onSubmitEditing={e=>suggestionSearch(e["nativeEvent"]["text"])}
             />
             <FlatList
-                data={recipeList}
-                renderItem={({item}) => <Item title={item.title} ingredients={item.ingredients.join("\n")} preparationTime={item.preparationTime} instructions={item.instructions.join("\n")}/>}
+                data={suggestedRecipes}
+                renderItem={({item}) => <SuggestedItem title={item.title} ingredients={item.ingredients.join("\n")} preparationTime={item.preparationTime} instructions={item.instructions.join("\n")}/>}
             />
-            <Text
-                style={styles.button}
-                onPress={() => router.navigate('/addrecipe')}>
-                {"+"}
-            </Text>
             <StatusBar style="light" backgroundColor={"#000000"}/>
+            <Modal transparent={true} visible={isLoading} animationType="fade">
+                <View style={styles.container}>
+                    <Text
+                        style={{color: '#fff',fontSize: 30,textAlign: 'center', textAlignVertical: 'center',}}>
+                        {"Processing..."}
+                    </Text>
+                </View>
+            </Modal>
         </View>
     );
 }
