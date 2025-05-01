@@ -148,15 +148,6 @@ export default function AddSuggestedRecipePage() {
                     style={styles.savebutton}
                     onPress={() => {
                         // Implement inventory functionality.
-                        router.back();
-                    }}
-                >
-                    Back
-                </Text>
-                <Text
-                    style={styles.savebutton}
-                    onPress={() => {
-                        // Implement inventory functionality.
                         saveRecipe(session, recipeTitle, recipeTime, recipeIngredients, recipeInstructions);
                     }}
                 >
@@ -203,7 +194,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         textAlignVertical: 'center',
         width: 50,
-        fontSize: 30
+        fontSize: 30,
     },
     savebutton: {
         color: '#fff',
@@ -215,7 +206,7 @@ const styles = StyleSheet.create({
         width: 110,
         height: 40,
         padding: 10,
-        marginBottom: 10
+        margin: 5
     },
 });
 

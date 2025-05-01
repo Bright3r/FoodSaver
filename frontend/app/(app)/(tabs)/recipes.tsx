@@ -1,10 +1,12 @@
-import {Text, View, StyleSheet, FlatList, TextInput} from 'react-native';
+import {Text, View, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import { useSession } from '@/app/ctx';
 import {router, useFocusEffect} from "expo-router";
 import React, {useCallback, useState} from "react";
 import { StatusBar } from 'expo-status-bar';
 import Constants from "expo-constants";
 import { SERVER_URI } from '@/const';
+import Ionicons from "@expo/vector-icons/Ionicons";
+import DismissibleTextInput from "@/app/components/dismissableTextInput";
 
 
 
@@ -85,15 +87,7 @@ export default function Recipes() {
 
     return (
         <View style={styles.container}>
-            <Text
-                style={styles.suggestionbutton}
-                onPress={() =>
-                    router.navigate('/recipesuggestion')
-                }
-            >
-                {"Recipe Suggestions"}
-            </Text>
-            <TextInput
+            <DismissibleTextInput
                 style={{color: '#fff', width: "auto", height: 50, borderWidth: 1, borderColor: '#ffffff', borderRadius: 10, marginBottom: 5}}
                 placeholder="Search"
                 placeholderTextColor="#696969"
@@ -112,6 +106,11 @@ export default function Recipes() {
                 onPress={() => router.navigate('/addrecipe')}>
                 {"+"}
             </Text>
+            <TouchableOpacity style={styles.suggestionbutton}
+                onPress={() => router.navigate('/recipesuggestion')
+                }>
+                <Ionicons name={'bulb'} size={50} color="#ffffff" style={{alignContent:'center',justifyContent:'center'}} />
+            </TouchableOpacity>
             <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
     );
@@ -159,8 +158,8 @@ const styles = StyleSheet.create({
         height: 50,
         fontSize: 30,
         position: "absolute",
-        top: 60,
-        right: 15,
+        top: "0%",
+        right: "5%",
     },
     savebuttontext: {
         color: '#fff',
@@ -187,12 +186,13 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ffffff',
         borderRadius: 10,
-        textAlign: 'center',
-        textAlignVertical: 'center',
-        width: "auto",
-        height: 50,
-        padding: 10,
-        marginBottom: 10,
-        fontSize: 25
+        width: 70,
+        height: 70,
+        position: "absolute",
+        top: "87%",
+        right: "10%",
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-around',
     },
 });

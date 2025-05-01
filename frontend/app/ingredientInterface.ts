@@ -14,3 +14,8 @@ export interface IngredientInventory {
     expirationDate:Date,
     productCode?:number
 }
+
+export interface SelectListItem {
+    key:string,
+    value:string
+}
