@@ -69,7 +69,9 @@ public class UserService {
 		}
 		
 		try {
+			// Store password hash, DO NOT STORE PLAINTEXT PASSWORD
 			user.setPasswordHash(passwordEncoder.encode(user.getPassword()));
+			user.setPassword("");
 			userRepo.save(user);
 			
 			System.out.println("Added new user: " + user);

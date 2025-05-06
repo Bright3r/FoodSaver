@@ -4,6 +4,8 @@ import Constants from "expo-constants";
 import {router} from "expo-router";
 import { SERVER_URI } from '@/const';
 
+
+
 const AuthContext = createContext<{
     signIn: (username: string, password: string) => Promise<{ success: boolean; message?: string }>;
     signOut: () => void;
