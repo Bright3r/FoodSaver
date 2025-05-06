@@ -3,27 +3,19 @@ import { useSession } from '@/app/ctx';
 import {router, useFocusEffect} from "expo-router";
 import React, {useCallback, useState} from "react";
 import { StatusBar } from 'expo-status-bar';
-import Constants from "expo-constants";
-import { SERVER_URI } from '@/const';
 import Ionicons from "@expo/vector-icons/Ionicons";
 import DismissibleTextInput from "@/app/components/dismissableTextInput";
+import {Recipe} from "../../ingredientInterface"
 
 
 
 export default function Recipes() {
-    const { session } = useSession();
+    const { refreshUser, user } = useSession();
     const [recipeList, setRecipeList] = useState<Recipe[]>([]);
     const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
     const [searchText, setSearchText] = useState("");
 
-    //sample recipe data
-    //just a title and description for each recipe for now
-    interface Recipe {
-        title:string;
-        ingredients:string[];
-        preparationTime:number;
-        instructions:string[];
-    }
+
 
     type ItemProps = {title: string, ingredients: string, preparationTime: number, instructions: string, };
 
@@ -43,30 +35,32 @@ export default function Recipes() {
     ;
 
 
-
-
     //implement recipe endpoint
-    const getRecipes = async (username:string | null | undefined) => {
-        try {
-            const uri =
-                Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-                SERVER_URI;
-            await fetch(`http://${uri}/api/user?username=${username}`, {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json'}
-            })
-            .then(res => res.json())
-            .then((data: any) => {
-                console.log("Retrieving recipes...");
-                setRecipeList(data.recipes ?? []);
-                setAllRecipes(data.recipes ?? []);
-
-                // DEBUG: inventoryStr - for checking the correctness of response data.
-                const recipesStr = JSON.stringify(data.recipes);
-                console.log(`Recipes: ${recipesStr}`);
-            });
-        } catch (error) {
-            console.error("Failed to get recipes", error);
+    const getRecipes = async () => {
+        // try {
+        //     const uri =
+        //         Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
+        //         SERVER_URI;
+        //     await fetch(`http://${uri}/api/user?username=${username}`, {
+        //         method: 'GET',
+        //         headers: {'Content-Type': 'application/json'}
+        //     })
+        //     .then(res => res.json())
+        //     .then((data: any) => {
+        //         console.log("Retrieving recipes...");
+        //         setRecipeList(data.recipes ?? []);
+        //         setAllRecipes(data.recipes ?? []);
+        //
+        //         // DEBUG: inventoryStr - for checking the correctness of response data.
+        //         const recipesStr = JSON.stringify(data.recipes);
+        //         console.log(`Recipes: ${recipesStr}`);
+        //     });
+        // } catch (error) {
+        //     console.error("Failed to get recipes", error);
+        // }
+        if(user){
+            setRecipeList(user.recipes);
+            setAllRecipes(user.recipes);
         }
 
     };
@@ -81,8 +75,9 @@ export default function Recipes() {
     useFocusEffect(
         useCallback(() => {
             setSearchText("");
-            getRecipes(session);
-        }, [session])
+            refreshUser();
+            getRecipes();
+        }, [])
     );
 
     return (

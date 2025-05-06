@@ -3,35 +3,89 @@ import React, {useState} from "react";
 import {router} from "expo-router";
 import {ScrollView, StyleSheet, Text, View} from "react-native";
 import {StatusBar} from "expo-status-bar";
-import Constants from "expo-constants";
-import { SERVER_URI } from "@/const";
 import DismissibleTextInput from "../components/dismissableTextInput";
 
-const saveRecipe = async(username:string | null | undefined, recipeTitle:string, recipeTime:number, recipeIngredients:string[], recipeInstructions:string[]): Promise<void> => {
-    try {
-        //set endpoint once it is created
-        const uri =
-            Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-            SERVER_URI;
-        const response = await fetch(`http://${uri}/api/user?username=${username}`, {
-            method: 'GET',
-            headers: {'Content-Type': 'application/json'}
-        })
-
-        console.log(`OK? ${response.ok}`);
-        console.log(`Username: ${username}`);
-
-        if (response.ok) {
-            const responseData = await response.json();
-            let responseStr = JSON.stringify(responseData);
-            // console.log(`Response Data: ${responseStr}`);
 
 
-            console.log(`Updating recipes...`);
-            let updatedData = JSON.parse(responseStr);
-            let objRecipes = updatedData['recipes'];
+export default function AddRecipePage() {
+    const { updateUser, user } = useSession();
+    const [recipeTitle, setRecipeTitle] = useState('');
+    const [recipeIngredients, setRecipeIngredients] = useState<string[]>([]);
+    const [recipeTime, setRecipeTime] = useState(0);
+    const [recipeInstructions, setRecipeInstructions] = useState<string[]>([]);
 
-            const dupe = objRecipes.find((item: {
+
+    const saveRecipe = async(recipeTitle:string, recipeTime:number, recipeIngredients:string[], recipeInstructions:string[]): Promise<void> => {
+        // try {
+        //     //set endpoint once it is created
+        //     const uri =
+        //         Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
+        //         SERVER_URI;
+        //     const response = await fetch(`http://${uri}/api/user?username=${username}`, {
+        //         method: 'GET',
+        //         headers: {'Content-Type': 'application/json'}
+        //     })
+        //
+        //     console.log(`OK? ${response.ok}`);
+        //     console.log(`Username: ${username}`);
+        //
+        //     if (response.ok) {
+        //         const responseData = await response.json();
+        //         let responseStr = JSON.stringify(responseData);
+        //         // console.log(`Response Data: ${responseStr}`);
+        //
+        //
+        //         console.log(`Updating recipes...`);
+        //         let updatedData = JSON.parse(responseStr);
+        //         let objRecipes = updatedData['recipes'];
+        //
+        //         const dupe = objRecipes.find((item: {
+        //             title:string;
+        //         }) => {
+        //             console.log(`recipe: ${item.title}`);
+        //             if (item.title === recipeTitle) {
+        //                 console.error(`Recipe with title '${recipeTitle}' already exists`);
+        //                 return true;
+        //             }
+        //         });
+        //         if(typeof dupe === "undefined") {
+        //             updatedData['recipes'].push({
+        //                 title: recipeTitle,
+        //                 ingredients: recipeIngredients,
+        //                 preparationTime: recipeTime, // User should be able to set their own purchase date.
+        //                 instructions: recipeInstructions // User should be able to set their own expiration date.
+        //             });
+        //             console.log(`Recipe added: ${recipeTitle}`);
+        //             console.log(`${username}'s recipes: ${JSON.stringify(updatedData['recipes'])}`);
+        //             alert("Recipe added!");
+        //         }
+        //
+        //         const response2 = await fetch(`http://${uri}/api/user`, {
+        //             method: 'PUT',
+        //             headers: {"Content-Type": "application/json"},
+        //             body: JSON.stringify(updatedData)
+        //         })
+        //
+        //         console.log(response2.status);
+        //         console.log(`OK? ${response2.ok}`);
+        //
+        //         if (response2.ok) {
+        //             console.log(`${username}'s recipes successfully updated`);
+        //             router.replace('/recipes');
+        //         } else {
+        //             console.error("Failed to save recipe", await response.text());
+        //         }
+        //
+        //         router.replace('/recipes');
+        //     } else {
+        //         console.error('Failed to save recipe', await response.text());
+        //     }
+        // } catch (error) {
+        //     console.error("Failed to save recipe", error);
+        // }
+        // router.replace('/recipes');
+        if(user){
+            const dupe = user.recipes.find((item: {
                 title:string;
             }) => {
                 console.log(`recipe: ${item.title}`);
@@ -41,50 +95,23 @@ const saveRecipe = async(username:string | null | undefined, recipeTitle:string,
                 }
             });
             if(typeof dupe === "undefined") {
-                updatedData['recipes'].push({
+                user.recipes.push({
                     title: recipeTitle,
                     ingredients: recipeIngredients,
                     preparationTime: recipeTime, // User should be able to set their own purchase date.
                     instructions: recipeInstructions // User should be able to set their own expiration date.
                 });
                 console.log(`Recipe added: ${recipeTitle}`);
-                console.log(`${username}'s recipes: ${JSON.stringify(updatedData['recipes'])}`);
+                console.log(`${user.username}'s recipes: ${JSON.stringify(user.recipes)}`);
                 alert("Recipe added!");
-            }
-
-            const response2 = await fetch(`http://${uri}/api/user`, {
-                method: 'PUT',
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(updatedData)
-            })
-
-            console.log(response2.status);
-            console.log(`OK? ${response2.ok}`);
-
-            if (response2.ok) {
-                console.log(`${username}'s recipes successfully updated`);
+                const response = await updateUser();
+                if (!response.success) {
+                    console.error("Failed to add item", response.message);
+                }
                 router.replace('/recipes');
-            } else {
-                console.error("Failed to save recipe", await response.text());
             }
-
-            router.replace('/recipes');
-        } else {
-            console.error('Failed to save recipe', await response.text());
         }
-    } catch (error) {
-        console.error("Failed to save recipe", error);
-    }
-    // router.replace('/recipes');
-};
-
-export default function AddRecipePage() {
-    const {session} = useSession();
-    const [recipeTitle, setRecipeTitle] = useState('');
-    const [recipeIngredients, setRecipeIngredients] = useState<string[]>([]);
-    const [recipeTime, setRecipeTime] = useState(0);
-    const [recipeInstructions, setRecipeInstructions] = useState<string[]>([]);
-
+    };
 
     const onChanged = (text:string) => {
         setRecipeTime(Number(text.replace(/[^0-9]/g, '')));
@@ -140,7 +167,7 @@ export default function AddRecipePage() {
                     style={styles.savebutton}
                     onPress={() => {
                         // Implement inventory functionality.
-                        saveRecipe(session, recipeTitle, recipeTime, recipeIngredients, recipeInstructions);
+                        saveRecipe(recipeTitle, recipeTime, recipeIngredients, recipeInstructions);
                     }}
                 >
                     Save

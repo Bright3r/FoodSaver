@@ -3,65 +3,81 @@ import {router, useLocalSearchParams} from "expo-router";
 import {Modal, StyleSheet, Text, View} from "react-native";
 import {ScrollView} from "react-native";
 import {StatusBar} from "expo-status-bar";
-import Constants from "expo-constants";
-import {SERVER_URI} from "@/const";
 import {useSession} from "@/app/ctx";
 
-const deleteRecipe = async(username:string | null | undefined, recipeTitle:string): Promise<void> => {
-    try {
-        //set endpoint once it is created
-        const uri =
-            Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-            SERVER_URI;
-        const response = await fetch(`http://${uri}/api/user?username=${username}`, {
-            method: 'GET',
-            headers: {'Content-Type': 'application/json'}
-        })
 
-        console.log(`OK? ${response.ok}`);
-        console.log(`Username: ${username}`);
-
-        if (response.ok) {
-            const responseData = await response.json();
-            let responseStr = JSON.stringify(responseData);
-
-
-            console.log(`Updating recipes...`);
-            let updatedData = JSON.parse(responseStr);
-
-            updatedData['recipes'] = updatedData['recipes'].filter((item: { title: string; }) => item.title !== recipeTitle);
-            const response2 = await fetch(`http://${uri}/api/user`, {
-                method: 'PUT',
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(updatedData)
-            })
-            console.log(`Recipe deleted: ${recipeTitle}`);
-            console.log(`${username}'s recipes: ${JSON.stringify(updatedData['recipes'])}`);
-            alert("Recipe deleted!");
-
-            console.log(response2.status);
-            console.log(`OK? ${response2.ok}`);
-
-            if (response2.ok) {
-                console.log(`${username}'s recipes successfully updated`);
-                router.replace('/recipes');
-            } else {
-                console.error("Failed to delete recipe", await response.text());
-            }
-
-            router.replace('/recipes');
-        } else {
-            console.error('Failed to delete recipe', await response.text());
-        }
-    } catch (error) {
-        console.error("Failed to delete recipe", error);
-    }
-};
 
 export default function RecipePage() {
     const { title, ingredients, preparationTime, instructions } = useLocalSearchParams();
     const [isModalOpen, setModalOpen] = useState(false);
-    const {session} = useSession();
+    const { updateUser, user } = useSession();
+
+    const deleteRecipe = async(recipeTitle:string): Promise<void> => {
+        // try {
+        //     //set endpoint once it is created
+        //     const uri =
+        //         Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
+        //         SERVER_URI;
+        //     const response = await fetch(`http://${uri}/api/user?username=${username}`, {
+        //         method: 'GET',
+        //         headers: {'Content-Type': 'application/json'}
+        //     })
+        //
+        //     console.log(`OK? ${response.ok}`);
+        //     console.log(`Username: ${username}`);
+        //
+        //     if (response.ok) {
+        //         const responseData = await response.json();
+        //         let responseStr = JSON.stringify(responseData);
+        //
+        //
+        //         console.log(`Updating recipes...`);
+        //         let updatedData = JSON.parse(responseStr);
+        //
+        //         updatedData['recipes'] = updatedData['recipes'].filter((item: { title: string; }) => item.title !== recipeTitle);
+        //         const response2 = await fetch(`http://${uri}/api/user`, {
+        //             method: 'PUT',
+        //             headers: {"Content-Type": "application/json"},
+        //             body: JSON.stringify(updatedData)
+        //         })
+        //         console.log(`Recipe deleted: ${recipeTitle}`);
+        //         console.log(`${username}'s recipes: ${JSON.stringify(updatedData['recipes'])}`);
+        //         alert("Recipe deleted!");
+        //
+        //         console.log(response2.status);
+        //         console.log(`OK? ${response2.ok}`);
+        //
+        //         if (response2.ok) {
+        //             console.log(`${username}'s recipes successfully updated`);
+        //             router.replace('/recipes');
+        //         } else {
+        //             console.error("Failed to delete recipe", await response.text());
+        //         }
+        //
+        //         router.replace('/recipes');
+        //     } else {
+        //         console.error('Failed to delete recipe', await response.text());
+        //     }
+        // } catch (error) {
+        //     console.error("Failed to delete recipe", error);
+        // }
+        try{
+            if (user){
+                user.recipes = user.recipes.filter((item: { title: string; }) => item.title !== recipeTitle);
+            }
+
+            // send update to server
+            const response = await updateUser();
+            if (!response.success) {
+                console.error("Failed to delete recipe", response.message);
+            }
+
+            // refresh inventory
+            router.replace('/recipes');
+        } catch (error) {
+            console.error("Failed to delete recipe", error);
+        }
+    };
 
     return(
         <View style={styles.container}>
@@ -106,7 +122,7 @@ export default function RecipePage() {
                             <Text
                                 style={styles.savebuttontext}
                                 onPress={() => {
-                                    deleteRecipe(session,title as string);
+                                    deleteRecipe(title as string);
                                     setModalOpen(false);
                                 }}
                             >
