@@ -61,7 +61,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
             // Navigate after signing in. You may want to tweak this to ensure sign-in is
             // successful before navigating.
-            router.navigate('/inventory');
+            // router.navigate('/inventory');
             console.log("Login Sucessful");
             return { success: true, message: 'Login Successful' };
           } else {
@@ -78,13 +78,16 @@ export function SessionProvider({ children }: PropsWithChildren) {
       const signOut = () => {
         setUser(null);
         setSession(null);
-        router.navigate('/login');
+        router.navigate('/sign-in');
       };
 
       const updateUser = async () => {
         if (!user) return { success: false, message: 'Not currently logged in' };
 
-        const putResponse = await fetch(`http://${SERVER_URI}/api/user`, {
+      const uri =
+          Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
+          SERVER_URI;
+        const putResponse = await fetch(`http://${uri}/api/user`, {
             method: 'PUT',
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(user)
