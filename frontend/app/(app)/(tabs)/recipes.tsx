@@ -1,27 +1,21 @@
-import {Text, View, StyleSheet, FlatList, TextInput} from 'react-native';
+import {Text, View, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import { useSession } from '@/app/ctx';
 import {router, useFocusEffect} from "expo-router";
 import React, {useCallback, useState} from "react";
 import { StatusBar } from 'expo-status-bar';
-import Constants from "expo-constants";
-import { SERVER_URI } from '@/const';
+import Ionicons from "@expo/vector-icons/Ionicons";
+import DismissibleTextInput from "@/app/components/dismissableTextInput";
+import {Recipe} from "../../ingredientInterface"
 
 
 
 export default function Recipes() {
-    const { session } = useSession();
+    const { refreshUser, user } = useSession();
     const [recipeList, setRecipeList] = useState<Recipe[]>([]);
     const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
     const [searchText, setSearchText] = useState("");
 
-    //sample recipe data
-    //just a title and description for each recipe for now
-    interface Recipe {
-        title:string;
-        ingredients:string[];
-        preparationTime:number;
-        instructions:string[];
-    }
+
 
     type ItemProps = {title: string, ingredients: string, preparationTime: number, instructions: string, };
 
@@ -41,29 +35,32 @@ export default function Recipes() {
     ;
 
 
-
     //implement recipe endpoint
-    const getRecipes = async (username:string | null | undefined) => {
-        try {
-            const uri =
-                Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-                SERVER_URI;
-            await fetch(`http://${uri}/api/user?username=${username}`, {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json'}
-            })
-            .then(res => res.json())
-            .then((data: any) => {
-                console.log("Retrieving recipes...");
-                setRecipeList(data.recipes ?? []);
-                setAllRecipes(data.recipes ?? []);
-
-                // DEBUG: inventoryStr - for checking the correctness of response data.
-                const recipesStr = JSON.stringify(data.recipes);
-                console.log(`Recipes: ${recipesStr}`);
-            });
-        } catch (error) {
-            console.error("Failed to get recipes", error);
+    const getRecipes = async () => {
+        // try {
+        //     const uri =
+        //         Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
+        //         SERVER_URI;
+        //     await fetch(`http://${uri}/api/user?username=${username}`, {
+        //         method: 'GET',
+        //         headers: {'Content-Type': 'application/json'}
+        //     })
+        //     .then(res => res.json())
+        //     .then((data: any) => {
+        //         console.log("Retrieving recipes...");
+        //         setRecipeList(data.recipes ?? []);
+        //         setAllRecipes(data.recipes ?? []);
+        //
+        //         // DEBUG: inventoryStr - for checking the correctness of response data.
+        //         const recipesStr = JSON.stringify(data.recipes);
+        //         console.log(`Recipes: ${recipesStr}`);
+        //     });
+        // } catch (error) {
+        //     console.error("Failed to get recipes", error);
+        // }
+        if(user){
+            setRecipeList(user.recipes);
+            setAllRecipes(user.recipes);
         }
 
     };
@@ -74,16 +71,18 @@ export default function Recipes() {
         setRecipeList(allRecipes.filter((item: { title: string; ingredients: string[]; }) => item.title.toLowerCase().includes(searchText) || item.ingredients.some(e => e.toLowerCase().includes(searchText))));
     };
 
+
     useFocusEffect(
         useCallback(() => {
             setSearchText("");
-            getRecipes(session);
-        }, [session])
+            refreshUser();
+            getRecipes();
+        }, [])
     );
 
     return (
         <View style={styles.container}>
-            <TextInput
+            <DismissibleTextInput
                 style={{color: '#fff', width: "auto", height: 50, borderWidth: 1, borderColor: '#ffffff', borderRadius: 10, marginBottom: 5}}
                 placeholder="Search"
                 placeholderTextColor="#696969"
@@ -102,6 +101,11 @@ export default function Recipes() {
                 onPress={() => router.navigate('/addrecipe')}>
                 {"+"}
             </Text>
+            <TouchableOpacity style={styles.suggestionbutton}
+                onPress={() => router.navigate('/recipesuggestion')
+                }>
+                <Ionicons name={'bulb'} size={50} color="#ffffff" style={{alignContent:'center',justifyContent:'center'}} />
+            </TouchableOpacity>
             <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
     );
@@ -112,6 +116,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#000000',
         justifyContent: 'center',
+        alignContent: 'center',
         paddingLeft: 10,
         paddingRight: 10,
     },
@@ -148,7 +153,41 @@ const styles = StyleSheet.create({
         height: 50,
         fontSize: 30,
         position: "absolute",
-        top: 0,
-        right: 15,
+        top: "0%",
+        right: "5%",
+    },
+    savebuttontext: {
+        color: '#fff',
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        width: 100,
+        fontSize: 30,
+        marginBottom: 10
+    },
+    savebutton: {
+        color: '#fff',
+        borderWidth: 1,
+        borderColor: '#ffffff',
+        borderRadius: 10,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        width: 110,
+        height: 40,
+        padding: 10,
+        margin: 10
+    },
+    suggestionbutton: {
+        color: '#fff',
+        borderWidth: 1,
+        borderColor: '#ffffff',
+        borderRadius: 10,
+        width: 70,
+        height: 70,
+        position: "absolute",
+        top: "87%",
+        right: "10%",
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-around',
     },
 });

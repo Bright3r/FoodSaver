@@ -1,1 +1,1 @@
-export const SERVER_URI = "10.0.0.117:8083"
+export const SERVER_URI = "localhost:8083"

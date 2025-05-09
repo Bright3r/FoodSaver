@@ -25,8 +25,11 @@ public class AuthController {
 		// Find user in database
 		User user = userService.getUserByUsername(loginRequest.username());
 		
+		// Set user's password to login request password
+		user.setPassword(loginRequest.password);
+		
 		// Return user if credentials are valid
-		if (user != null && user.getPassword().equals(loginRequest.password())) {
+		if (user != null && userService.authenticateUser(user)) {
 		    return ResponseEntity.status(HttpStatus.OK).body(user);
 		}
 		

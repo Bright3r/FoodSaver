@@ -10,56 +10,36 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 
 
-/**
- * Features to add:
- *  Edit ingredient item
- *  Delete ingredient item
- *  
- */
 export default function Inventory() {
-    const {session} = useSession();
+    const { updateUser, refreshUser, user } = useSession();
     const [inventory, setInventory] = useState<IngredientInventory[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
-    const { refresh, key } = useLocalSearchParams();
     const router = useRouter();
 
-    const getInventory = async (username:string | null | undefined): Promise<void> => {
-        if (!username) return;
-        setLoading(true);
-        setInventory([]);
-        console.log(`Loading before fetch? ${loading}`);
-        console.log(`Table loaded before fetch? ${isLoaded}`);
-        try {
-            const uri = Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ?? SERVER_URI;
-            await fetch(`http://${uri}/api/user?username=${username}`, {
-                method: 'GET',
-                headers: {"Content-Type": "application/json"}
-            })
-            .then(res => res.json())
-            .then((data: any) => {
-                console.log("Retrieving inventory...");
-                setInventory(data.inventory ?? []);
-
-                // DEBUG: inventoryStr - for checking the correctness of response data.
-                const inventoryStr = JSON.stringify(data.inventory);
-                console.log(`Inventory: ${inventoryStr}`);
-            });
-
-            setLoading(false);
-
-            console.log(`Inventory retrieved!`);
-            console.log(`Table successfully loaded!`);
-        } catch (error) {
-            console.error("Failed to get inventory", error);
-        }
-    }
+    useEffect(() => {
+      if (user) {
+        console.log("User changed, refreshing inventory", user);
+        setInventory(user.inventory);
+      }
+    }, [user]);    
 
     useFocusEffect(
-        useCallback(() => {
-            getInventory(session);
-        }, [session, refresh, key])
-    );
+      useCallback(() => {
+        const load = async () => {
+          await refreshUser();
+          getInventory();
+        };
+        load();
+      }, [])
+    );    
+    
+
+    const getInventory = () => {
+      if (user) {
+        setInventory(user.inventory);
+      }
+    }
 
     const formatDate = (date: string | Date) => {
         return new Date(date).toLocaleDateString(undefined, {
@@ -81,40 +61,52 @@ export default function Inventory() {
     };
 
     const handleDeleteItem = async (item: IngredientInventory) => {
-      Alert.alert(
-        "Delete Item",
-        `Are you sure you want to delete ${item.name}?`,
-        [
-          {text: "Cancel", style: "cancel"},
-          {
-            text: "Delete", style: "destructive", onPress: async () => {
-              try {
-                const uri = Constants.expoConfig?.hostUri?.split(':')?.shift()?.concat(":8083") ?? SERVER_URI;
-                console.log(`Deleting item...`);
-                const getResponse = await fetch(`http://${uri}/api/user?username=${session}`, {
-                  method: 'GET',
-                  headers: {"Content-Type": "application/json"}
-                });
-                const data = await getResponse.json();
+      try {
+        // update inventory
+        if (user) {
+          user.inventory = user.inventory.filter((i: IngredientInventory) => i.name !== item.name);
+        }
 
-                console.log(`Inventory to modify: ${data.inventory}`)
+        // send update to server
+        const response = await updateUser();
+        if (!response.success) {
+          console.error("Failed to delete item", response.message);
+        }
 
-                const updatedInventory = data.inventory.filter((i: IngredientInventory) => i.name !== item.name);
+        // refresh inventory
+        getInventory();
+      } catch (error) {
+        console.error("Failed to delete item", error);
+      }
 
-                await fetch(`http://${uri}/api/user`, {
-                  method: 'PUT',
-                  headers: {"Content-Type": "application/json"},
-                  body: JSON.stringify({...data, inventory: updatedInventory})
-                });
+      // Alert.alert(
+      //   "Delete Item",
+      //   `Are you sure you want to delete ${item.name}?`,
+      //   [
+      //     {text: "Cancel", style: "cancel"},
+      //     {
+      //       text: "Delete", style: "destructive", onPress: async () => {
+      //         try {
+      //           // update inventory
+      //           if (user) {
+      //             user.inventory = user.inventory.filter((i: IngredientInventory) => i.name !== item.name);
+      //           }
 
-                getInventory(session);
-              } catch (error) {
-                console.error("Failed to delete item", error);
-              }
-            }
-          }
-        ]
-      );
+      //           // send update to server
+      //           const response = await updateUser();
+      //           if (!response.success) {
+      //             console.error("Failed to delete item", response.message);
+      //           }
+
+      //           // refresh inventory
+      //           getInventory();
+      //         } catch (error) {
+      //           console.error("Failed to delete item", error);
+      //         }
+      //       }
+      //     }
+      //   ]
+      // );
     };
       
     return (

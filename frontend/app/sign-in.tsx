@@ -40,6 +40,7 @@ export default function SignIn() {
                         setErrorMessage(result.message || 'Sign in failed. Please try again.');
                     } else {
                         setErrorMessage('');
+                        router.navigate('/inventory')
                     }
                 }}
             >

@@ -14,3 +14,15 @@ export interface IngredientInventory {
     expirationDate:Date,
     productCode?:number
 }
+
+export interface SelectListItem {
+    key:string,
+    value:string
+}
+
+export interface Recipe {
+    title:string;
+    ingredients:string[];
+    preparationTime:number;
+    instructions:string[];
+}

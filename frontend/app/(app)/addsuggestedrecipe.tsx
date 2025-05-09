@@ -7,7 +7,7 @@ import DismissibleTextInput from "../components/dismissableTextInput";
 
 
 
-export default function EditRecipePage() {
+export default function AddSuggestedRecipePage() {
     const { updateUser, user } = useSession();
     const { title, ingredients, preparationTime, instructions } = useLocalSearchParams();
     const [recipeTitle, setRecipeTitle] = useState(title as string);
@@ -15,8 +15,7 @@ export default function EditRecipePage() {
     const [recipeTime, setRecipeTime] = useState(Number(preparationTime));
     const [recipeInstructions, setRecipeInstructions] = useState(instructions as string);
 
-
-    const saveRecipe = async(oldTitle:string, recipeTitle:string, recipeTime:number, recipeIngredients:string, recipeInstructions:string): Promise<void> => {
+    const saveRecipe = async(recipeTitle:string, recipeTime:number, recipeIngredients:string, recipeInstructions:string): Promise<void> => {
         // try {
         //     //set endpoint once it is created
         //     const uri =
@@ -33,31 +32,33 @@ export default function EditRecipePage() {
         //     if (response.ok) {
         //         const responseData = await response.json();
         //         let responseStr = JSON.stringify(responseData);
+        //         // console.log(`Response Data: ${responseStr}`);
         //
         //
         //         console.log(`Updating recipes...`);
         //         let updatedData = JSON.parse(responseStr);
-        //         for(var i = 0; i<updatedData['recipes'].length; i++){
-        //             if(updatedData['recipes'][i].title === oldTitle){
-        //                 updatedData['recipes'][i].title = recipeTitle;
-        //                 updatedData['recipes'][i].preparationTime = recipeTime;
-        //                 if(recipeIngredients === ""){
-        //                     updatedData['recipes'][i].ingredients = [];
-        //                 }
-        //                 else{
-        //                     updatedData['recipes'][i].ingredients = recipeIngredients.split("\n");
-        //                 }
-        //                 if(recipeInstructions === ""){
-        //                     updatedData['recipes'][i].instructions = [];
-        //                 }
-        //                 else {
-        //                     updatedData['recipes'][i].instructions = recipeInstructions.split("\n");
-        //                 }
+        //         let objRecipes = updatedData['recipes'];
+        //
+        //         const dupe = objRecipes.find((item: {
+        //             title:string;
+        //         }) => {
+        //             console.log(`recipe: ${item.title}`);
+        //             if (item.title === recipeTitle) {
+        //                 console.error(`Recipe with title '${recipeTitle}' already exists`);
+        //                 return true;
         //             }
+        //         });
+        //         if(typeof dupe === "undefined") {
+        //             updatedData['recipes'].push({
+        //                 title: recipeTitle,
+        //                 ingredients: recipeIngredients.split("\n"),
+        //                 preparationTime: recipeTime, // User should be able to set their own purchase date.
+        //                 instructions: recipeInstructions.split("\n") // User should be able to set their own expiration date.
+        //             });
+        //             console.log(`Recipe added: ${recipeTitle}`);
+        //             console.log(`${username}'s recipes: ${JSON.stringify(updatedData['recipes'])}`);
+        //             alert("Recipe added!");
         //         }
-        //         console.log(`Recipe added: ${recipeTitle}`);
-        //         console.log(`${username}'s recipes: ${JSON.stringify(updatedData['recipes'])}`);
-        //         alert("Recipe edited!");
         //
         //         const response2 = await fetch(`http://${uri}/api/user`, {
         //             method: 'PUT',
@@ -83,33 +84,32 @@ export default function EditRecipePage() {
         //     console.error("Failed to save recipe", error);
         // }
         if(user){
-            for(var i = 0; i<user.recipes.length; i++){
-                if(user.recipes[i].title === oldTitle){
-                    user.recipes[i].title = recipeTitle;
-                    user.recipes[i].preparationTime = recipeTime;
-                    if(recipeIngredients === ""){
-                        user.recipes[i].ingredients = [];
-                    }
-                    else{
-                        user.recipes[i].ingredients = recipeIngredients.split("\n");
-                    }
-                    if(recipeInstructions === ""){
-                        user.recipes[i].instructions = [];
-                    }
-                    else {
-                        user.recipes[i].instructions = recipeInstructions.split("\n");
-                    }
+            const dupe = user.recipes.find((item: {
+                title:string;
+            }) => {
+                console.log(`recipe: ${item.title}`);
+                if (item.title === recipeTitle) {
+                    console.error(`Recipe with title '${recipeTitle}' already exists`);
+                    return true;
+                }
+            });
+            if(typeof dupe === "undefined") {
+                user.recipes.push({
+                    title: recipeTitle,
+                    ingredients: recipeIngredients.split("\n"),
+                    preparationTime: recipeTime, // User should be able to set their own purchase date.
+                    instructions: recipeInstructions.split("\n") // User should be able to set their own expiration date.
+                });
+                console.log(`Recipe added: ${recipeTitle}`);
+                console.log(`${user.username}'s recipes: ${JSON.stringify(user.recipes)}`);
+                alert("Recipe added!");
+                const response = await updateUser();
+                if (!response.success) {
+                    console.error("Failed to delete item", response.message);
                 }
             }
-            console.log(`Recipe edited: ${recipeTitle}`);
-            console.log(`${user.username}'s recipes: ${JSON.stringify(user.recipes)}`);
-            alert("Recipe edited!");
-            const response = await updateUser();
-            if (!response.success) {
-                console.error("Failed to save item", response.message);
-            }
-            router.replace('/recipes');
         }
+        router.replace('/recipes');
     };
 
     const onChanged = (text:string) => {
@@ -174,7 +174,7 @@ export default function EditRecipePage() {
                     style={styles.savebutton}
                     onPress={() => {
                         // Implement inventory functionality.
-                        saveRecipe(title as string, recipeTitle, recipeTime, recipeIngredients, recipeInstructions);
+                        saveRecipe(recipeTitle, recipeTime, recipeIngredients, recipeInstructions);
                     }}
                 >
                     Save
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         textAlignVertical: 'center',
         width: 50,
-        fontSize: 30
+        fontSize: 30,
     },
     savebutton: {
         color: '#fff',
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
         width: 110,
         height: 40,
         padding: 10,
-        marginBottom: 10
+        margin: 5
     },
 });
 
