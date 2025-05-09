@@ -262,7 +262,7 @@ export default function IngredientPage() {
                                 </>
                             ) : (
                                 <Modal transparent={true} animationType="fade" visible={showDatePicker}>
-                                <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#000000aa' }}>
+                                <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#000000aa'}}>
                                     <View style={{ backgroundColor: '#222', margin: 20, borderRadius: 10, padding: 20 }}>
                                     <DateTimePicker
                                         value={tempDate}
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
         borderRadius: 10
     },
     nutritionGradeContainer: {
-        height: 150,
+        height: 30,
         marginTop: 5,
         marginBottom: 5
     },
@@ -434,7 +434,8 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         height: 150,
-        padding: 5
+        padding: 5,
+        alignItems: 'center',
     },
     button: {
        color: '#fff',
@@ -445,9 +446,6 @@ const styles = StyleSheet.create({
        textAlignVertical: 'center',
        width: 110,
        height: 40,
-       bottom: 100,
-       left: 0,
-       right: 0,
        padding: 10,
         marginBottom: 10
     },
