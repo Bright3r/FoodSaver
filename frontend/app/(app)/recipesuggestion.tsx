@@ -5,9 +5,9 @@ import { StatusBar } from 'expo-status-bar';
 import Constants from "expo-constants";
 import { SERVER_URI } from '@/const';
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
-import {IngredientInventory, SelectListItem} from "@/app/ingredientInterface";
+import {IngredientInventory, SelectListItem} from "@/app/interfaces-app";
 import {useSession} from "@/app/ctx";
-import {Recipe} from "../ingredientInterface"
+import {Recipe} from "../interfaces-app"
 
 
 

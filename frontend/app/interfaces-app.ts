@@ -26,3 +26,8 @@ export interface Recipe {
     preparationTime:number;
     instructions:string[];
 }
+
+export interface MealPlans {
+    recipe: Recipe,
+    date: Date
+}

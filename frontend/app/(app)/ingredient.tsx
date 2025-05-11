@@ -17,7 +17,7 @@ import {useRouter, useLocalSearchParams, router} from 'expo-router';
 import Constants from 'expo-constants';
 import {StatusBar} from "expo-status-bar";
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { Ingredient } from '../ingredientInterface';
+import { Ingredient } from '../interfaces-app';
 import { SERVER_URI } from '@/const';
 import DismissibleTextInput from '../components/dismissableTextInput';
 import { parse } from '@babel/core';
@@ -48,78 +48,8 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
 };
 
 
-const saveIngredient = async (username:string | null | undefined,  
-    ingredient:Ingredient, expiration:Date, isEdit:boolean, originalName?:string): Promise<void> => {
-    try {
-        const uri =
-            Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-            SERVER_URI;
-        const getResponse = await fetch(`http://${uri}/api/user?username=${username}`, {
-            method: 'GET',
-            headers: {'Content-Type': 'application/json'}
-        });
-        console.log(getResponse.status);
-        console.log(`OK? ${getResponse.ok}`);
-        console.log(`Username: ${username}`);
-        
-        if (getResponse.ok) {
-            const responseData = await getResponse.json();
-            let responseStr = JSON.stringify(responseData);
-            console.log(`Response Data: ${responseStr}`);
-
-            const today = new Date();
-
-            console.log(`Updating inventory...`);
-            let inventory = responseData.inventory || [];
-
-            if (isEdit && originalName) {
-                console.log(`Editing ${originalName}`);
-                inventory = inventory.filter((i: Ingredient) => i.name !== originalName);
-            }
-
-            // let updatedData = JSON.parse(responseStr);
-
-            inventory.push({
-                name: ingredient.name,
-                qty: 1,
-                purchaseDate: today, // User should be able to set their own purchase date.
-                expirationDate: expiration
-            });
-
-            console.log(`Item added: ${ingredient.name}`);
-            console.log(`${username}'s inventory: ${JSON.stringify(inventory)}`);
-
-            const putResponse = await fetch(`http://${uri}/api/user`, {
-                method: 'PUT',
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({...responseData, inventory})
-            })
-
-            console.log(putResponse.status);
-            console.log(`OK? ${putResponse.ok}`);
-
-            if (putResponse.ok) {
-                console.log(`${username}'s inventory successfully updated`);
-                alert(isEdit ? "Item updated!" : "Item added to inventory!");
-                router.push({
-                    pathname: './inventory',
-                    params: { key: Date.now().toString() }
-                });
-            } else {
-                console.error("Failed to save item", await getResponse.text());
-            }
-        } else {
-            console.error('Failed to save item', await getResponse.text());
-        }
-
-    } catch (error) {
-        console.error("Failed to save item", error);
-    }
-};
-
-
 export default function IngredientPage() {
-    const {session} = useSession();
+    const {user, updateUser} = useSession();
     const [ingredient, setIngredient] = useState<Ingredient | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const { scannedData, itemData, mode } = useLocalSearchParams();
@@ -137,6 +67,89 @@ export default function IngredientPage() {
     const originalName = ingredient?.name;
     const router = useRouter();
     const [tempDate, setTempDate] = useState<Date>(expirationDate);
+
+    const saveIngredient = async (ingredient:Ingredient, expiration:Date, isEdit:boolean, originalName?:string): Promise<void> => {
+        // try {
+        //     const uri =
+        //         Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
+        //         SERVER_URI;
+        //     const getResponse = await fetch(`http://${uri}/api/user?username=${username}`, {
+        //         method: 'GET',
+        //         headers: {'Content-Type': 'application/json'}
+        //     });
+        //     console.log(getResponse.status);
+        //     console.log(`OK? ${getResponse.ok}`);
+        //     console.log(`Username: ${username}`);
+            
+        //     if (getResponse.ok) {
+        //         const responseData = await getResponse.json();
+        //         let responseStr = JSON.stringify(responseData);
+        //         console.log(`Response Data: ${responseStr}`);
+
+        //         const today = new Date();
+
+        //         console.log(`Updating inventory...`);
+        //         let inventory = responseData.inventory || [];
+
+        //         if (isEdit && originalName) {
+        //             console.log(`Editing ${originalName}`);
+        //             inventory = inventory.filter((i: Ingredient) => i.name !== originalName);
+        //         }
+
+        //         // let updatedData = JSON.parse(responseStr);
+
+        //         inventory.push({
+        //             name: ingredient.name,
+        //             qty: 1,
+        //             purchaseDate: today, // User should be able to set their own purchase date.
+        //             expirationDate: expiration
+        //         });
+
+        //         console.log(`Item added: ${ingredient.name}`);
+        //         console.log(`${username}'s inventory: ${JSON.stringify(inventory)}`);
+
+        //         const putResponse = await fetch(`http://${uri}/api/user`, {
+        //             method: 'PUT',
+        //             headers: {"Content-Type": "application/json"},
+        //             body: JSON.stringify({...responseData, inventory})
+        //         })
+
+        //         console.log(putResponse.status);
+        //         console.log(`OK? ${putResponse.ok}`);
+
+        //         if (putResponse.ok) {
+        //             console.log(`${username}'s inventory successfully updated`);
+        //             alert(isEdit ? "Item updated!" : "Item added to inventory!");
+        //             router.push({
+        //                 pathname: './inventory',
+        //                 params: { key: Date.now().toString() }
+        //             });
+        //         } else {
+        //             console.error("Failed to save item", await getResponse.text());
+        //         }
+        //     } else {
+        //         console.error('Failed to save item', await getResponse.text());
+        //     }
+
+        // } catch (error) {
+        //     console.error("Failed to save item", error);
+        // }
+        if (user) {
+            user.inventory.push({
+                name: ingredient.name,
+                qty: 1,
+                purchaseDate: today,
+                expirationDate: expiration
+            });
+            console.log(`Adding ${ingredient.name}`);
+            console.log(`${user.username}'s inventory: ${JSON.stringify(user.inventory)}`);
+            const response = await updateUser();
+            if (!response.success) {
+                console.log("Failed to add item", response.message);
+            }
+            router.back();
+        }
+    };
 
     useEffect(() => {
         const getIngredient = async () => {
@@ -317,7 +330,7 @@ export default function IngredientPage() {
                                                 imageUrl: ingredient.imageUrl,
                                                 nutritionGrade: ingredient.nutritionGrade
                                             };
-                                            saveIngredient(session, updatedIngredient, expirationDate, isEditMode, originalName);
+                                            saveIngredient(updatedIngredient, expirationDate, isEditMode, originalName);
                                             router.replace({
                                                 pathname: '/(app)/(tabs)/inventory',
                                                 params: { key: Date.now().toString() }

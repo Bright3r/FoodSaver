@@ -4,7 +4,7 @@ import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useSession } from '../../ctx';
 import Constants from 'expo-constants';
 import {StatusBar} from "expo-status-bar";
-import { IngredientInventory } from '../../ingredientInterface'
+import { IngredientInventory } from '../../interfaces-app'
 import {SERVER_URI} from "@/const"
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -35,7 +35,7 @@ export default function Inventory() {
     );    
     
 
-    const getInventory = () => {
+    const getInventory = async () => {
       if (user) {
         setInventory(user.inventory);
       }
