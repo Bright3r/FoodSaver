@@ -1,5 +1,4 @@
 import { useContext, createContext, type PropsWithChildren, useState } from 'react';
-import Constants from "expo-constants";
 import {router} from "expo-router";
 import { SERVER_URI } from '@/const';
 import { useStorageState } from './useStorageState';
@@ -83,9 +82,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       const updateUser = async () => {
         if (!user) return { success: false, message: 'Not currently logged in' };
 
-      const uri =
-          Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-          SERVER_URI;
+      const uri = SERVER_URI;
         const putResponse = await fetch(`${uri}/api/user`, {
             method: 'PUT',
             headers: {"Content-Type": "application/json"},

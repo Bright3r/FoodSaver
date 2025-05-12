@@ -5,7 +5,7 @@ import React, {useCallback, useState} from "react";
 import { StatusBar } from 'expo-status-bar';
 import Ionicons from "@expo/vector-icons/Ionicons";
 import DismissibleTextInput from "@/app/components/dismissableTextInput";
-import {Recipe} from "../../ingredientInterface"
+import {Recipe} from "../../../interfaces"
 
 
 
