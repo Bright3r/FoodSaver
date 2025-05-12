@@ -76,7 +76,12 @@ export default function Recipes() {
         useCallback(() => {
             setSearchText("");
             refreshUser();
-            getRecipes();
+            if(user){
+                getRecipes();
+            }
+            else{
+                router.replace("/sign-in");
+            }
         }, [])
     );
 

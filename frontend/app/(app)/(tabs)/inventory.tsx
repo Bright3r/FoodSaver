@@ -8,7 +8,7 @@ import {SERVER_URI} from "@/const"
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function Inventory() {
-    const { updateUser, refreshUser, user, session } = useSession();
+    const { updateUser, refreshUser, user } = useSession();
     const [inventory, setInventory] = useState<IngredientInventory[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
@@ -40,7 +40,12 @@ export default function Inventory() {
 
     // Initial data fetch
     useEffect(() => {
-        fetchInventory();
+        if(user) {
+            fetchInventory();
+        }
+        else{
+            router.replace("/sign-in");
+        }
     }, []);
 
     // Refresh data when page comes into focus

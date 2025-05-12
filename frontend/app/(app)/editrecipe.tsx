@@ -1,6 +1,6 @@
 import {useSession} from "@/app/ctx";
-import React, {useState} from "react";
-import {router, useLocalSearchParams} from "expo-router";
+import React, {useCallback, useState} from "react";
+import {router, useFocusEffect, useLocalSearchParams} from "expo-router";
 import {ScrollView, StyleSheet, Text, View} from "react-native";
 import {StatusBar} from "expo-status-bar";
 import DismissibleTextInput from "../components/dismissableTextInput";
@@ -115,6 +115,14 @@ export default function EditRecipePage() {
     const onChanged = (text:string) => {
         setRecipeTime(Number(text.replace(/[^0-9]/g, '')));
     }
+
+    useFocusEffect(
+        useCallback(() => {
+            if(!user){
+                router.replace("/sign-in");
+            }
+        }, [])
+    );
 
     return(
         <View style={styles.container}>

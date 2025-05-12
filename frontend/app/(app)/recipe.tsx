@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import {router, useLocalSearchParams} from "expo-router";
+import React, {useCallback, useState} from "react";
+import {router, useFocusEffect, useLocalSearchParams} from "expo-router";
 import {Modal, StyleSheet, Text, View} from "react-native";
 import {ScrollView} from "react-native";
 import {StatusBar} from "expo-status-bar";
@@ -78,6 +78,14 @@ export default function RecipePage() {
             console.error("Failed to delete recipe", error);
         }
     };
+
+    useFocusEffect(
+        useCallback(() => {
+            if(!user){
+                router.replace("/sign-in");
+            }
+        }, [])
+    );
 
     return(
         <View style={styles.container}>

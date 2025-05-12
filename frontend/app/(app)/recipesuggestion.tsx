@@ -69,7 +69,12 @@ export default function RecipeSuggestions() {
 
     useFocusEffect(
         useCallback(() => {
-            getInventory();
+            if(user) {
+                getInventory();
+            }
+            else{
+                router.replace("/sign-in");
+            }
         }, [])
     );
 

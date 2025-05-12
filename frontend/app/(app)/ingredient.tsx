@@ -103,32 +103,34 @@ export default function IngredientPage() {
     useEffect(() => {
         const getIngredient = async () => {
             setLoading(true);
+            if(user) {
+                if (itemData) {
+                    console.log("Loading ingredient from itemData");
+                    const parsedItem = JSON.parse(itemData as string);
+                    setIngredient({
+                        name: parsedItem.name,
+                        description: parsedItem.description ?? "Unknown description",
+                        nutritionGrade: parsedItem.nutritionGrade ?? "Unknown",
+                        imageUrl: parsedItem.imageUrl ?? ''
+                    });
+                    setItemName(parsedItem.name);
+                    setItemDesc(parsedItem.description);
+                } else if (scannedData) {
+                    console.log("Loading ingredient from scannedData");
+                    const parsedScannedData = JSON.parse(scannedData as string);
+                    const fetchedIngredient = await fetchIngredientData(parsedScannedData);
+                    setIngredient(fetchedIngredient);
+                    setItemName(fetchedIngredient?.name ?? '');
+                    setItemDesc(fetchedIngredient?.description ?? '');
+                } else {
+                    console.error("No scannedData or itemData.");
+                }
 
-            if (itemData) {
-                console.log("Loading ingredient from itemData"); 
-                const parsedItem = JSON.parse(itemData as string);
-                setIngredient({
-                    name: parsedItem.name,
-                    description: parsedItem.description ?? "Unknown description",
-                    nutritionGrade: parsedItem.nutritionGrade ?? "Unknown",
-                    imageUrl: parsedItem.imageUrl ?? ''
-                });
-                setItemName(parsedItem.name);
-                setItemDesc(parsedItem.description);
+                setLoading(false);
             }
-            else if (scannedData) {
-                console.log("Loading ingredient from scannedData");
-                const parsedScannedData = JSON.parse(scannedData as string);
-                const fetchedIngredient = await fetchIngredientData(parsedScannedData);
-                setIngredient(fetchedIngredient);
-                setItemName(fetchedIngredient?.name ?? '');
-                setItemDesc(fetchedIngredient?.description ?? '');
+            else{
+                router.replace("/sign-in")
             }
-            else {
-                console.error("No scannedData or itemData.");
-            }
-
-            setLoading(false);
         };
 
         getIngredient();

@@ -3,12 +3,14 @@ import { Text, View, StyleSheet } from "react-native";
 import { CameraView, Camera } from "expo-camera";
 import { useRouter } from 'expo-router';
 import {StatusBar} from "expo-status-bar";
+import {useSession} from "@/app/ctx";
 
 export default function Scanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(true); // Set to true so camera starts automatically
+  const {user} = useSession()
 
   const router = useRouter();
 
@@ -19,8 +21,12 @@ export default function Scanner() {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
     };
-
-    getCameraPermissions();
+    if(user) {
+      getCameraPermissions();
+    }
+    else{
+      router.replace("/sign-in")
+    }
   }, []);
 
   async function handleBarcodeScanned ({ type, data }: { type: string; data: string }) {
@@ -39,7 +45,7 @@ export default function Scanner() {
     });
 
     setTimeout(() => scanSuccess = false, 1000);
-  };
+  }
 
   if (hasPermission === null) {
     return <Text>Requesting camera permission...</Text>;
