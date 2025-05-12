@@ -168,16 +168,16 @@ export default function IngredientPage() {
                         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                         keyboardVerticalOffset={Platform.OS === 'ios' ? 25 : 0}
                     >
-                        <DismissibleTextInput 
+                        <Text
                             style={styles.description}
-                            onChangeText={val => setItemDesc(val)}
-                            multiline={true}
-                            textAlignVertical='top'
-                            submitBehavior='blurAndSubmit'
-                            placeholder="Ingredient description"
+                            // onChangeText={val => setItemDesc(val)}
+                            // multiline={true}
+                            // textAlignVertical='top'
+                            // submitBehavior='blurAndSubmit'
+                            // placeholder="Ingredient description"
                         >
                             {ingredient.description}
-                        </DismissibleTextInput >
+                        </Text >
                     </KeyboardAvoidingView>
                     <View 
                         style={styles.nutritionGradeContainer}
