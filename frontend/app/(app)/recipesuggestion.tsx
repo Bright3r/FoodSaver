@@ -80,10 +80,8 @@ export default function RecipeSuggestions() {
         try {
             setLoading(true);
             console.log(`Ingredients: ${ingredients}`);
-            const uri =
-                Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-                SERVER_URI;
-            await fetch(`http://${uri}/api/recipe/search`, {
+            const uri = SERVER_URI;
+            await fetch(`${uri}/api/recipe/search`, {
                 method: 'POST',
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(ingredients)

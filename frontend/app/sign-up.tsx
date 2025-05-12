@@ -10,10 +10,8 @@ const handleSubmit = async (firstname:string,lastname:string,username:string,pas
 
     try {
         //need to find the ip of the localhost since the backend is not running on the same device
-        const uri =
-            Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-            SERVER_URI;
-        const response = await fetch(`http://${uri}/api/auth/signup`, {
+        const uri = SERVER_URI;
+        const response = await fetch(`${uri}/api/auth/signup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: username, password: password, firstName: firstname, lastName: lastname })

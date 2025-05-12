@@ -2,10 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Text, View, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useSession } from '../../ctx';
-import Constants from 'expo-constants';
 import {StatusBar} from "expo-status-bar";
 import { IngredientInventory } from '../../ingredientInterface'
-import {SERVER_URI} from "@/const"
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 

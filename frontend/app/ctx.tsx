@@ -42,10 +42,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
     const signIn = async (username: string, password: string): Promise<{ success: boolean; message?: string }> => {
         try {
-          const uri =
-            Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ?? SERVER_URI;
-    
-          const response = await fetch(`http://${uri}/api/auth/login`, {
+          const uri = SERVER_URI;
+          const response = await fetch(`${uri}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
@@ -87,7 +85,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       const uri =
           Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
           SERVER_URI;
-        const putResponse = await fetch(`http://${uri}/api/user`, {
+        const putResponse = await fetch(`${uri}/api/user`, {
             method: 'PUT',
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(user)

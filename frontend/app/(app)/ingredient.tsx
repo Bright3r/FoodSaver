@@ -51,10 +51,8 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
 const saveIngredient = async (username:string | null | undefined,  
     ingredient:Ingredient, expiration:Date, isEdit:boolean, originalName?:string): Promise<void> => {
     try {
-        const uri =
-            Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-            SERVER_URI;
-        const getResponse = await fetch(`http://${uri}/api/user?username=${username}`, {
+        const uri = SERVER_URI;
+        const getResponse = await fetch(`${uri}/api/user?username=${username}`, {
             method: 'GET',
             headers: {'Content-Type': 'application/json'}
         });
@@ -89,7 +87,7 @@ const saveIngredient = async (username:string | null | undefined,
             console.log(`Item added: ${ingredient.name}`);
             console.log(`${username}'s inventory: ${JSON.stringify(inventory)}`);
 
-            const putResponse = await fetch(`http://${uri}/api/user`, {
+            const putResponse = await fetch(`${uri}/api/user`, {
                 method: 'PUT',
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({...responseData, inventory})
