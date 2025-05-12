@@ -11,6 +11,10 @@ public class Product {
     private String nutritionGrade;
     private String imageURL;
 
+    public Product() {
+    	
+    }
+    
     public Product(String name, int qty, Date purchaseDate, Date expirationDate) {
         this.name = name;
         this.qty = qty;
