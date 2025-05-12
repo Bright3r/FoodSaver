@@ -25,7 +25,6 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
     try {
         const response = await fetch(`https://us.openfoodfacts.org/api/v0/product/${productCode}`);
         const data = await response.json();
-
         if (data.status === 1 && data.product) {
             const product = data.product;
 
@@ -101,7 +100,7 @@ export default function IngredientPage() {
     };
 
     useEffect(() => {
-        const getIngredient = async () => {
+        const getIngredient = async (scannedData: string | string[], itemData: string | string[]) => {
             setLoading(true);
             if(user) {
                 if (itemData) {
@@ -117,7 +116,8 @@ export default function IngredientPage() {
                     setItemDesc(parsedItem.description);
                 } else if (scannedData) {
                     console.log("Loading ingredient from scannedData");
-                    const parsedScannedData = JSON.parse(scannedData as string);
+                    const parsedScannedData = Number(scannedData as string);
+                    console.log("openfoodfacts replied");
                     const fetchedIngredient = await fetchIngredientData(parsedScannedData);
                     setIngredient(fetchedIngredient);
                     setItemName(fetchedIngredient?.name ?? '');
@@ -132,8 +132,7 @@ export default function IngredientPage() {
                 router.replace("/sign-in")
             }
         };
-
-        getIngredient();
+        getIngredient(scannedData, itemData);
     }, [scannedData, itemData])
 
     return(
