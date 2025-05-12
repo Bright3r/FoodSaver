@@ -80,9 +80,7 @@ export default function IngredientPage() {
                     expirationDate: expiration
                 });
 
-                console.log(`Item added: ${ingredient.name}`);
-                console.log(`${user.username}'s inventory: ${JSON.stringify(inventory)}`);
-
+                user.inventory = inventory;
                 const response = await updateUser();
                 if (response.success) {
                     alert(isEdit ? "Item updated!" : "Item added to inventory!");
