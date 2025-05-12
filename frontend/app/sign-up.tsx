@@ -1,41 +1,41 @@
 import {Text, View, StyleSheet, TextInput} from 'react-native';
 import React, {useState} from "react";
 import {router} from "expo-router";
-import Constants from "expo-constants";
 import {StatusBar} from "expo-status-bar";
 import { SERVER_URI } from '@/const';
 import DismissibleTextInput from './components/dismissableTextInput';
 
-const handleSubmit = async (firstname:string,lastname:string,username:string,password:string) => {
 
-    try {
-        //need to find the ip of the localhost since the backend is not running on the same device
-        const uri = SERVER_URI;
-        const response = await fetch(`${uri}/api/auth/signup`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: username, password: password, firstName: firstname, lastName: lastname })
-        });
-
-        if (response.ok) {
-            const userData = await response.json();
-            console.log("Signup response: ", userData);
-            router.navigate('/sign-in');
-        } else {
-            console.error('Signup failed', await response.text());
-            return null;
-        }
-    } catch (error) {
-        console.error('Signup failed', error);
-        return null;
-    }
-};
 
 export default function SignUp() {
     const [firstname, setFirstname] = useState('');
     const [lastname, setLastname] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [errorMsg, setErrorMsg] = useState('');
+
+    const handleSubmit = async (firstname:string,lastname:string,username:string,password:string) => {
+        try {
+            const uri = SERVER_URI;
+            const response = await fetch(`${uri}/api/auth/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: password, firstName: firstname, lastName: lastname })
+            });
+
+            if (response.ok) {
+                setErrorMsg('')
+                router.navigate('/sign-in');
+            } else {
+                setErrorMsg('Username is already taken!');
+                return null;
+            }
+        } catch (error) {
+            setErrorMsg("Something went wrong. Please try again later.");
+            return null;
+        }
+    };
+
     return (
         <View style={styles.container}>
             <Text
@@ -68,7 +68,7 @@ export default function SignUp() {
                 placeholderTextColor="#ffffff"
                 onChangeText={val => setPassword(val)}
             />
-            <View style={{flex: 1, flexDirection:'row'}}>
+            <View style={{flexDirection:'row', marginBottom: 10}}>
                 <Text
                     style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, marginRight: 10, textAlign: 'center', textAlignVertical: 'center', width: 110, height: 40}}
                     onPress={() => {
@@ -93,6 +93,11 @@ export default function SignUp() {
                     Create Account
                 </Text>
             </View>
+
+            {errorMsg !== '' && (
+                <Text style={styles.errorText}>{errorMsg}</Text>
+            )}
+
             <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
     );
@@ -106,5 +111,12 @@ const styles = StyleSheet.create({
     },
     text: {
         color: '#fff',
+    },
+    errorText: {
+        color: 'red',
+        marginTop: 10,
+        marginBottom: 10,
+        paddingHorizontal: 20,
+        textAlign: 'center',
     },
 });

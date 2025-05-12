@@ -14,13 +14,11 @@ import {
     Dimensions, 
     KeyboardAvoidingView } from 'react-native';
 import {useRouter, useLocalSearchParams, router} from 'expo-router';
-import Constants from 'expo-constants';
 import {StatusBar} from "expo-status-bar";
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { Ingredient } from '../ingredientInterface';
 import { SERVER_URI } from '@/const';
 import DismissibleTextInput from '../components/dismissableTextInput';
-import { parse } from '@babel/core';
 
 
 const fetchIngredientData = async (productCode: number): Promise<Ingredient | null> => {
