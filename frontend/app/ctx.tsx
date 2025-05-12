@@ -3,6 +3,7 @@ import Constants from "expo-constants";
 import {router} from "expo-router";
 import { SERVER_URI } from '@/const';
 import { useStorageState } from './useStorageState';
+import { User } from '@/interfaces';
 
 
 

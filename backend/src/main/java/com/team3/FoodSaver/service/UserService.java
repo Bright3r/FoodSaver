@@ -109,6 +109,9 @@ public class UserService {
 			// update password hash
 			updatedUser.setPasswordHash(passwordEncoder.encode(updatedUser.getPassword()));
 			
+			// do not save plaintext password
+			updatedUser.setPassword("");
+			
 			// overwrite old user document with updated user
 			userRepo.save(updatedUser);
 			return true;

@@ -1,6 +1,6 @@
 
 
-interface User {
+export interface User {
     id: string,
     username: string,
     password: string,
@@ -13,25 +13,45 @@ interface User {
     mealPlans: MealPlan[],
 };
 
-interface Product {
+export interface Product {
     name: string,
     qty: number,
     purchaseDate: Date,
     expirationDate: Date,
 };
 
-interface Recipe {
+export interface Recipe {
     title: string,
     ingredients: string[],
     preparationTime: number,
     instructions: string[],
 };
 
-interface Meal {
+export interface Meal {
     recipe: Recipe,
     date: Date,
 };
 
-interface MealPlan {
+export interface MealPlan {
     meals: Meal[],
+}
+
+export interface Ingredient {
+    name:string,
+    description:string,
+    nutritionGrade:string,
+    imageUrl:string,
+}
+
+export interface IngredientInventory {
+    name:string,
+    qty:number,
+    purchaseDate:Date,
+    expirationDate:Date,
+    productCode?:number
+}
+
+export interface SelectListItem {
+    key:string,
+    value:string
 }

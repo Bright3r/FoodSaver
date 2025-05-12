@@ -2,12 +2,10 @@ import {Text, View, StyleSheet, FlatList, Modal, Image} from 'react-native';
 import {router, useFocusEffect} from "expo-router";
 import React, {useCallback, useState} from "react";
 import { StatusBar } from 'expo-status-bar';
-import Constants from "expo-constants";
 import { SERVER_URI } from '@/const';
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
-import {IngredientInventory, SelectListItem} from "@/app/ingredientInterface";
+import {IngredientInventory, SelectListItem, Recipe} from '@/interfaces';
 import {useSession} from "@/app/ctx";
-import {Recipe} from "../ingredientInterface"
 
 
 

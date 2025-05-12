@@ -16,9 +16,8 @@ import {
 import {useRouter, useLocalSearchParams, router} from 'expo-router';
 import {StatusBar} from "expo-status-bar";
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { Ingredient } from '../ingredientInterface';
-import { SERVER_URI } from '@/const';
 import DismissibleTextInput from '../components/dismissableTextInput';
+import { Ingredient, Product } from '@/interfaces';
 
 
 const fetchIngredientData = async (productCode: number): Promise<Ingredient | null> => {
@@ -46,86 +45,14 @@ const fetchIngredientData = async (productCode: number): Promise<Ingredient | nu
 };
 
 
-const saveIngredient = async (username:string | null | undefined,  
-    ingredient:Ingredient, expiration:Date, isEdit:boolean, originalName?:string): Promise<void> => {
-    try {
-        const uri = SERVER_URI;
-        const getResponse = await fetch(`${uri}/api/user?username=${username}`, {
-            method: 'GET',
-            headers: {'Content-Type': 'application/json'}
-        });
-        console.log(getResponse.status);
-        console.log(`OK? ${getResponse.ok}`);
-        console.log(`Username: ${username}`);
-        
-        if (getResponse.ok) {
-            const responseData = await getResponse.json();
-            let responseStr = JSON.stringify(responseData);
-            console.log(`Response Data: ${responseStr}`);
-
-            const today = new Date();
-
-            console.log(`Updating inventory...`);
-            let inventory = responseData.inventory || [];
-
-            if (isEdit && originalName) {
-                console.log(`Editing ${originalName}`);
-                inventory = inventory.filter((i: Ingredient) => i.name !== originalName);
-            }
-
-            // let updatedData = JSON.parse(responseStr);
-
-            inventory.push({
-                name: ingredient.name,
-                qty: 1,
-                purchaseDate: today, // User should be able to set their own purchase date.
-                expirationDate: expiration
-            });
-
-            console.log(`Item added: ${ingredient.name}`);
-            console.log(`${username}'s inventory: ${JSON.stringify(inventory)}`);
-
-            const putResponse = await fetch(`${uri}/api/user`, {
-                method: 'PUT',
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({...responseData, inventory})
-            })
-
-            console.log(putResponse.status);
-            console.log(`OK? ${putResponse.ok}`);
-
-            if (putResponse.ok) {
-                console.log(`${username}'s inventory successfully updated`);
-                alert(isEdit ? "Item updated!" : "Item added to inventory!");
-                router.push({
-                    pathname: './inventory',
-                    params: { key: Date.now().toString() }
-                });
-            } else {
-                console.error("Failed to save item", await getResponse.text());
-            }
-        } else {
-            console.error('Failed to save item', await getResponse.text());
-        }
-
-    } catch (error) {
-        console.error("Failed to save item", error);
-    }
-};
-
-
 export default function IngredientPage() {
-    const {session} = useSession();
     const [ingredient, setIngredient] = useState<Ingredient | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const { scannedData, itemData, mode } = useLocalSearchParams();
-    const [confirmItemSave, setConfirmItemSave] = useState(false);
     const [itemName, setItemName] = useState('');
     const [itemDesc, setItemDesc] = useState('');
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [isModalOpen, setModalOpen] = useState(false);
-    const parsedScannedData = scannedData ? parseInt(scannedData as string) : NaN;
-    const { refresh } = useLocalSearchParams();
     const [saving, setSaving] = useState(false);
     const [expirationDate, setExpirationDate] = useState<Date>(new Date());
     const today = new Date();
@@ -133,6 +60,47 @@ export default function IngredientPage() {
     const originalName = ingredient?.name;
     const router = useRouter();
     const [tempDate, setTempDate] = useState<Date>(expirationDate);
+    const {user, updateUser} = useSession();
+
+    const saveIngredient = async (
+    ingredient:Ingredient, expiration:Date, isEdit:boolean, originalName?:string): Promise<void> => {
+        try {
+            if (user) {
+                const today = new Date();
+                let inventory = user.inventory;
+
+                if (isEdit && originalName) {
+                    inventory = inventory.filter((i: Product) => i.name !== originalName);
+                }
+
+                inventory.push({
+                    name: ingredient.name,
+                    qty: 1,
+                    purchaseDate: today, // User should be able to set their own purchase date.
+                    expirationDate: expiration
+                });
+
+                console.log(`Item added: ${ingredient.name}`);
+                console.log(`${user.username}'s inventory: ${JSON.stringify(inventory)}`);
+
+                const response = await updateUser();
+                if (response.success) {
+                    alert(isEdit ? "Item updated!" : "Item added to inventory!");
+                    router.push({
+                        pathname: './inventory',
+                        params: { key: Date.now().toString() }
+                    });
+                } else {
+                    console.error("Failed to save item", response.message);
+                }
+            } else {
+                console.error('Failed to save item - Internal Error');
+            }
+
+        } catch (error) {
+            console.error("Failed to save item", error);
+        }
+    };
 
     useEffect(() => {
         const getIngredient = async () => {
@@ -313,7 +281,7 @@ export default function IngredientPage() {
                                                 imageUrl: ingredient.imageUrl,
                                                 nutritionGrade: ingredient.nutritionGrade
                                             };
-                                            saveIngredient(session, updatedIngredient, expirationDate, isEditMode, originalName);
+                                            saveIngredient(updatedIngredient, expirationDate, isEditMode, originalName);
                                             router.replace({
                                                 pathname: '/(app)/(tabs)/inventory',
                                                 params: { key: Date.now().toString() }
