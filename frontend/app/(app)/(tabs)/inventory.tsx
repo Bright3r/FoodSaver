@@ -10,6 +10,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 export default function Inventory() {
     const { updateUser, refreshUser, user } = useSession();
     const [inventory, setInventory] = useState<IngredientInventory[]>([]);
+    const [expiredItems, setExpired] = useState<IngredientInventory[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
     const [expandedItems, setExpandedItems] = useState<{ [key: string]: boolean }>({});
@@ -42,6 +43,7 @@ export default function Inventory() {
     useEffect(() => {
         if(user) {
             fetchInventory();
+            getExpiringItems();
         }
         else{
             router.replace("/sign-in");
@@ -52,6 +54,7 @@ export default function Inventory() {
     useFocusEffect(
         useCallback(() => {
             fetchInventory();
+            getExpiringItems();
         }, [])
     );
 
@@ -64,13 +67,19 @@ export default function Inventory() {
 
     const getExpiringItems = () => {
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
         const twoDaysFromNow = new Date(today);
         twoDaysFromNow.setDate(today.getDate() + 2);
+        if(user) {
+            setExpired([...user.inventory, ...user.expired]
+                .filter(item => {
+                    const expirationDate = new Date(item.expirationDate);
+                    expirationDate.setHours(0, 0, 0, 0);
+                    return expirationDate <= twoDaysFromNow;
+                })
+                .sort((a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime()))
+        }
 
-        return inventory.filter(item => {
-            const expirationDate = new Date(item.expirationDate);
-            return expirationDate <= twoDaysFromNow;
-        });
     };
 
     const getExpirationStatus = (expirationDate: Date) => {
@@ -199,7 +208,7 @@ export default function Inventory() {
                         onPress={() => setShowExpirationModal(true)}
                     >
                         <Ionicons name="alert-circle" size={24} color="#ffffff" />
-                        <Text style={styles.fabText}>Inventory</Text>
+                        <Text style={styles.fabText}>Expiring</Text>
                     </TouchableOpacity>
 
                     {/* Expiration Modal */}
@@ -221,9 +230,9 @@ export default function Inventory() {
                                     </TouchableOpacity>
                                 </View>
 
-                                {getExpiringItems().length > 0 ? (
+                                {expiredItems.length > 0 ? (
                                     <FlatList
-                                        data={getExpiringItems()}
+                                        data={expiredItems}
                                         keyExtractor={(item, index) => `${item.name}-${index}`}
                                         renderItem={({ item }) => {
                                             const { status, color } = getExpirationStatus(item.expirationDate);
