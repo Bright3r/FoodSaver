@@ -1,27 +1,29 @@
 package com.team3.FoodSaver.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class MealPlan {
-	private List<Meal> meals;
+	private Recipe recipe;
+	private Date date;
 	
-	public MealPlan() {
-		meals = new ArrayList<Meal>();
+	public MealPlan(Recipe recipe, Date date) {
+		this.recipe = recipe;
+		this.date = date;
 	}
 	
-	public void addMeal(Recipe recipe, Date date) {
-		this.meals.add(new Meal(recipe, date));
+	public Recipe getRecipe() {
+		return recipe;
 	}
 	
-	public List<Meal> getMeals() {
-		return meals;
+	public void setRecipe(Recipe recipe) {
+		this.recipe = recipe;
 	}
 	
-	public void setMeals(List<Meal> meals) {
-		this.meals = meals;
+	public Date getDate() {
+		return date;
 	}
-
-	public record Meal(Recipe recipe, Date date) { }
+	
+	public void setDate(Date date) {
+		this.date = date;
+	}
 }

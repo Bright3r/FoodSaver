@@ -42,7 +42,7 @@ public class FoodSaverApplication implements CommandLineRunner {
         // Create test dates
         Date purchaseDate = new Date(System.currentTimeMillis()); 								 // Today's date
         Date expirationDate = new Date(System.currentTimeMillis() + (7L * 24 * 60 * 60 * 1000)); // 7 days from now
-        Date expiredDate = new Date(System.currentTimeMillis() + (7L * 24 * 60 * 60 * 1000));	 // 7 days ago
+        Date expiredDate = new Date(System.currentTimeMillis() - (7L * 24 * 60 * 60 * 1000));	 // 7 days ago
 
         // Create test products
         Product milk = new Product("Milk", 2, purchaseDate, expiredDate);
@@ -69,16 +69,12 @@ public class FoodSaverApplication implements CommandLineRunner {
         recipes.add(r2);
         
         // Create test meal plans
-        MealPlan plan1 = new MealPlan();
-        plan1.addMeal(r1, purchaseDate);
-        plan1.addMeal(r2, purchaseDate);
+        List<MealPlan> plan1 = new ArrayList<>();;
+        plan1.add(new MealPlan(r1, purchaseDate));
+        plan1.add(new MealPlan(r2, purchaseDate));
         
-        MealPlan plan2 = new MealPlan();
-        plan2.addMeal(r2, expirationDate);
-        
-        List<MealPlan> mealPlans = new ArrayList<>();
-        mealPlans.add(plan1);
-        mealPlans.add(plan2);
+        List<MealPlan> plan2 = new ArrayList<>();
+        plan2.add(new MealPlan(r2, expirationDate));
         
         // Create test expired ingredients list
         List<Product> expired = new ArrayList<>();
@@ -88,35 +84,34 @@ public class FoodSaverApplication implements CommandLineRunner {
         inventory.add(milk);
 		
 		// Seed database
-		userService.createUser(new User("user1", "password1", "Alfred", "Bones", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user2", "password2", "Betty", "Carter", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user3", "password3", "Charlie", "Davis", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user4", "password4", "David", "Evans", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user5", "password5", "Emma", "Fletcher", inventory, expired, recipes, mealPlans));
+		userService.createUser(new User("user1", "password1", "Alfred", "Bones", inventory, expired, recipes, plan1));
+		userService.createUser(new User("user2", "password2", "Betty", "Carter", inventory, expired, recipes, plan1));
+		userService.createUser(new User("user3", "password3", "Charlie", "Davis", inventory, expired, recipes, plan1));
+		userService.createUser(new User("user4", "password4", "David", "Evans", inventory, expired, recipes, plan1));
+		userService.createUser(new User("user5", "password5", "Emma", "Fletcher", inventory, expired, recipes, plan1));
 		
 		inventory.add(apple);
-		userService.createUser(new User("user6", "password6", "Frank", "Green", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user7", "password7", "Grace", "Hill", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user8", "password8", "Hank", "Ingram", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user9", "password9", "Ivy", "Johnson", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user10", "password10", "Jack", "Keller", inventory, expired, recipes, mealPlans));
+		userService.createUser(new User("user6", "password6", "Frank", "Green", inventory, expired, recipes, plan1));
+		userService.createUser(new User("user7", "password7", "Grace", "Hill", inventory, expired, recipes, plan1));
+		userService.createUser(new User("user8", "password8", "Hank", "Ingram", inventory, expired, recipes, plan1));
+		userService.createUser(new User("user9", "password9", "Ivy", "Johnson", inventory, expired, recipes, plan1));
+		userService.createUser(new User("user10", "password10", "Jack", "Keller", inventory, expired, recipes, plan1));
 		
-		mealPlans.remove(1);
 		inventory.remove(0);
 		inventory.add(bread);
 		inventory.add(steak);
-		userService.createUser(new User("user11", "password11", "Katie", "Lewis", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user12", "password12", "Liam", "Moore", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user13", "password13", "Mia", "Nash", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user14", "password14", "Nathan", "O'Brien", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user15", "password15", "Olivia", "Parker", inventory, expired, recipes, mealPlans));
+		userService.createUser(new User("user11", "password11", "Katie", "Lewis", inventory, expired, recipes, plan1));
+		userService.createUser(new User("user12", "password12", "Liam", "Moore", inventory, expired, recipes, plan1));
+		userService.createUser(new User("user13", "password13", "Mia", "Nash", inventory, expired, recipes, plan2));
+		userService.createUser(new User("user14", "password14", "Nathan", "O'Brien", inventory, expired, recipes, plan2));
+		userService.createUser(new User("user15", "password15", "Olivia", "Parker", inventory, expired, recipes, plan2));
 		
 		inventory.remove(steak);
 		inventory.add(chicken);
-		userService.createUser(new User("user16", "password16", "Paul", "Quinn", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user17", "password17", "Quincy", "Reed", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user18", "password18", "Rachel", "Stone", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user19", "password19", "Samuel", "Taylor", inventory, expired, recipes, mealPlans));
-		userService.createUser(new User("user20", "password20", "Tina", "Walker", inventory, expired, recipes, mealPlans));
+		userService.createUser(new User("user16", "password16", "Paul", "Quinn", inventory, expired, recipes, plan2));
+		userService.createUser(new User("user17", "password17", "Quincy", "Reed", inventory, expired, recipes, plan2));
+		userService.createUser(new User("user18", "password18", "Rachel", "Stone", inventory, expired, recipes, plan2));
+		userService.createUser(new User("user19", "password19", "Samuel", "Taylor", inventory, expired, recipes, plan2));
+		userService.createUser(new User("user20", "password20", "Tina", "Walker", inventory, expired, recipes, plan2));
 	}
 }
