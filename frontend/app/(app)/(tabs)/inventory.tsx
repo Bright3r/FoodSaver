@@ -88,9 +88,9 @@ export default function Inventory() {
         const diffTime = expDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
-        if (diffDays < 0) {
+        if (diffDays <= 0) {
             return { status: 'Expired', color: '#ff4444' };
-        } else if (diffDays === 0) {
+        } else if (diffDays === -1) {
             return { status: 'Expires today', color: '#ffaa00' };
         } else {
             return { status: `Expires in ${diffDays} days`, color: '#ffaa00' };
@@ -118,23 +118,26 @@ export default function Inventory() {
 
     const handleDeleteItem = async (item: IngredientInventory) => {
         try {
-            // Update local state
-            setInventory(prev => prev.filter(i => i.name !== item.name));
-            
-            // Update server
-            const response = await updateUser();
-            if (!response.success) {
-                console.error("Failed to delete item", response.message);
-                Alert.alert('Error', 'Failed to delete item');
-                // Refresh inventory to restore the item
-                fetchInventory();
+            if (user) {
+                // Update local state
+                let newInventory = inventory.filter(i => i.name !== item.name)
+                setInventory(newInventory);
+
+                // Update server
+                user.inventory = newInventory;
+                const response = await updateUser();
+                if (!response.success) {
+                    console.error("Failed to delete item", response.message);
+                    Alert.alert('Error', 'Failed to delete item');
+                }
             }
         } catch (error) {
             console.error("Failed to delete item", error);
             Alert.alert('Error', 'Failed to delete item');
-            // Refresh inventory to restore the item
-            fetchInventory();
         }
+
+        // Refresh inventory to restore the item
+        await fetchInventory();
     };
       
     return (
