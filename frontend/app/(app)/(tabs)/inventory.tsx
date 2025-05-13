@@ -3,14 +3,14 @@ import { Text, View, StyleSheet, FlatList, TouchableOpacity, Alert, Animated, Mo
 import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useSession } from '../../ctx';
 import {StatusBar} from "expo-status-bar";
-import { IngredientInventory } from '@/interfaces';
+import { Product } from '@/interfaces';
 import {SERVER_URI} from "@/const"
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function Inventory() {
     const { updateUser, refreshUser, user } = useSession();
-    const [inventory, setInventory] = useState<IngredientInventory[]>([]);
-    const [expiredItems, setExpired] = useState<IngredientInventory[]>([]);
+    const [inventory, setInventory] = useState<Product[]>([]);
+    const [expiredItems, setExpired] = useState<Product[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
     const [expandedItems, setExpandedItems] = useState<{ [key: string]: boolean }>({});
@@ -105,18 +105,18 @@ export default function Inventory() {
         });
     };
 
-    const handleEditItem = (item: IngredientInventory) => {
+    const handleEditItem = (item: Product) => {
         console.log("Editing item...");
+        // console.log(item.imageUrl);
         router.push({
-            pathname: '../ingredient',
+            pathname: '../editingredient',
             params: {
-                itemData: JSON.stringify(item),
-                mode: 'edit'
+                itemName: JSON.stringify(item.name)
             },
         });
     };
 
-    const handleDeleteItem = async (item: IngredientInventory) => {
+    const handleDeleteItem = async (item: Product) => {
         try {
             if (user) {
                 // Update local state
@@ -205,6 +205,13 @@ export default function Inventory() {
                         }}
                     />
 
+                    <TouchableOpacity
+                        style={styles.addButton}
+                        onPress={() => router.navigate("/ingredient")}
+                    >
+                        <Ionicons name="add-outline" size={24} color="#ffffff" />
+                    </TouchableOpacity>
+
                     {/* Floating Action Button */}
                     <TouchableOpacity 
                         style={styles.fab}
@@ -275,7 +282,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#000',
-        paddingTop: 20,
         paddingHorizontal: 16,
     },
     loadingContainer: {
@@ -316,7 +322,7 @@ const styles = StyleSheet.create({
     },
     expandedContent: {
         padding: 16,
-        paddingTop: 0,
+        paddingTop: 10,
         borderTopWidth: 1,
         borderTopColor: '#333',
     },
@@ -357,12 +363,12 @@ const styles = StyleSheet.create({
     },
     fab: {
         position: 'absolute',
-        right: 20,
+        left: 20,
         bottom: 20,
         backgroundColor: '#1a1a1a',
         borderRadius: 30,
         paddingHorizontal: 20,
-        paddingVertical: 12,
+        paddingVertical: 17,
         flexDirection: 'row',
         alignItems: 'center',
         elevation: 5,
@@ -376,6 +382,22 @@ const styles = StyleSheet.create({
         marginLeft: 8,
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    addButton: {
+        position: 'absolute',
+        right: 20,
+        bottom: 20,
+        backgroundColor: '#1a1a1a',
+        borderRadius: 30,
+        paddingHorizontal: 17,
+        paddingVertical: 17,
+        flexDirection: 'row',
+        alignItems: 'center',
+        elevation: 5,
+        shadowColor: '#fff',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
     modalOverlay: {
         flex: 1,

@@ -70,6 +70,12 @@ export default function AppLayout() {
                     title: 'Recipe Suggestions',
                 }}
             />
+            <Stack.Screen
+                name="editingredient"
+                options={{
+                    title: 'Edit Ingredient',
+                }}
+            />
         </Stack>
     );
 }
