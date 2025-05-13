@@ -88,7 +88,7 @@ export default function Recipes() {
     return (
         <View style={styles.container}>
             <DismissibleTextInput
-                style={{color: '#fff', width: "auto", height: 50, borderWidth: 1, borderColor: '#ffffff', borderRadius: 10, marginBottom: 5}}
+                style={{color: '#fff', width: "auto", height: 50, borderWidth: 1, borderColor: '#ffffff', borderRadius: 10, marginBottom: 5, backgroundColor: '#1a1a1a'}}
                 placeholder="Search"
                 placeholderTextColor="#696969"
                 onChangeText={val=>{
@@ -101,15 +101,18 @@ export default function Recipes() {
                 data={recipeList}
                 renderItem={({item}) => <Item title={item.title} ingredients={item.ingredients.join("\n")} preparationTime={item.preparationTime} instructions={item.instructions.join("\n")}/>}
             />
-            <Text
-                style={styles.button}
-                onPress={() => router.navigate('/addrecipe')}>
-                {"+"}
-            </Text>
-            <TouchableOpacity style={styles.suggestionbutton}
-                onPress={() => router.navigate('/recipesuggestion')
-                }>
-                <Ionicons name={'bulb'} size={50} color="#ffffff" style={{alignContent:'center',justifyContent:'center'}} />
+            <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => router.navigate("/addrecipe")}
+            >
+                <Ionicons name="add-outline" size={24} color="#ffffff" />
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.fab}
+                onPress={() => router.navigate("/recipesuggestion")}
+            >
+                <Ionicons name="bulb-outline" size={24} color="#ffffff" />
+                <Text style={styles.fabText}>Suggestions</Text>
             </TouchableOpacity>
             <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
@@ -129,13 +132,17 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     item: {
-        borderColor: '#ffffff',
-        borderWidth: 1,
-        backgroundColor: '#141414',
+        backgroundColor: '#1a1a1a',
         borderRadius: 10,
-        padding: 10,
+        padding: 20,
         marginVertical: 5,
         alignItems: 'center',
+        shadowColor: '#fff',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+        overflow: 'hidden',
     },
     title: {
         fontSize: 32,
@@ -194,5 +201,43 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'space-around',
+    },
+    addButton: {
+        position: 'absolute',
+        right: 20,
+        bottom: 20,
+        backgroundColor: '#1a1a1a',
+        borderRadius: 30,
+        paddingHorizontal: 17,
+        paddingVertical: 17,
+        flexDirection: 'row',
+        alignItems: 'center',
+        elevation: 5,
+        shadowColor: '#fff',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    fab: {
+        position: 'absolute',
+        left: 20,
+        bottom: 20,
+        backgroundColor: '#1a1a1a',
+        borderRadius: 30,
+        paddingHorizontal: 20,
+        paddingVertical: 17,
+        flexDirection: 'row',
+        alignItems: 'center',
+        elevation: 5,
+        shadowColor: '#fff',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    fabText: {
+        color: '#ffffff',
+        marginLeft: 8,
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });

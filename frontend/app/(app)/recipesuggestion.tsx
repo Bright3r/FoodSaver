@@ -4,7 +4,7 @@ import React, {useCallback, useState} from "react";
 import { StatusBar } from 'expo-status-bar';
 import { SERVER_URI } from '@/const';
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
-import {IngredientInventory, SelectListItem, Recipe} from '@/interfaces';
+import {SelectListItem, Recipe, Product} from '@/interfaces';
 import {useSession} from "@/app/ctx";
 
 
@@ -62,7 +62,7 @@ export default function RecipeSuggestions() {
         // } catch (error) {
         //     console.error("Failed to get inventory", error);
         // }
-        let ingredients = user.inventory.map((item:IngredientInventory) => {return {key: item.name, value: item.name}})
+        let ingredients = user.inventory.map((item:Product) => {return {key: item.name, value: item.name}})
         setInventory(ingredients);
         setLoading(false);
     }
@@ -176,13 +176,17 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     item: {
-        borderColor: '#ffffff',
-        borderWidth: 1,
-        backgroundColor: '#141414',
+        backgroundColor: '#1a1a1a',
         borderRadius: 10,
-        padding: 10,
+        padding: 20,
         marginVertical: 5,
         alignItems: 'center',
+        shadowColor: '#fff',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+        overflow: 'hidden',
     },
     title: {
         fontSize: 32,
