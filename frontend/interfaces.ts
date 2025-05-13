@@ -16,6 +16,9 @@ export interface User {
 export interface Product {
     name: string,
     qty: number,
+    description:string,
+    nutritionGrade:string,
+    imageURL:string,
     purchaseDate: Date,
     expirationDate: Date,
 };
@@ -34,21 +37,6 @@ export interface Meal {
 
 export interface MealPlan {
     meals: Meal[],
-}
-
-export interface Ingredient {
-    name:string,
-    description:string,
-    nutritionGrade:string,
-    imageUrl:string,
-}
-
-export interface IngredientInventory {
-    name:string,
-    qty:number,
-    purchaseDate:Date,
-    expirationDate:Date,
-    productCode?:number
 }
 
 export interface SelectListItem {
