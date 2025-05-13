@@ -32,8 +32,8 @@ export default function IngredientPage() {
     const [formattedPurchase, setFormattedPurchase] = useState("");
     const [formattedExpiry, setFormattedExpiry] = useState("");
     const today = new Date();
-    const overmorrow = new Date();
-    overmorrow.setDate(overmorrow.getDate()+2);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate()+1);
     const originalName = ingredient?.name;
     const router = useRouter();
     const {user, updateUser} = useSession();
@@ -294,7 +294,7 @@ export default function IngredientPage() {
                                         mode="date"
                                         display="calendar"
                                         //set minimum date based on whether we are dealing with expiration date or purchase date
-                                        minimumDate={isExpiry ? overmorrow : new Date(1960, 0, 1)}
+                                        minimumDate={isExpiry ? tomorrow : new Date(1960, 0, 1)}
                                         maximumDate={isExpiry ? new Date(2100, 0, 1) : today}
                                         onChange={(event, selectedDate) => {
                                             if (selectedDate) {
@@ -328,7 +328,7 @@ export default function IngredientPage() {
                                                 value={isExpiry ? ingredient.expirationDate : ingredient.purchaseDate}
                                                 mode="date"
                                                 display="spinner"
-                                                minimumDate={isExpiry ? overmorrow : new Date(1960, 0, 1)}
+                                                minimumDate={isExpiry ? tomorrow : new Date(1960, 0, 1)}
                                                 maximumDate={isExpiry ? new Date(2100, 0, 1) : today}
                                                 onChange={(event, selectedDate) => {
                                                     if (selectedDate) {
