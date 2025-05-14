@@ -8,7 +8,8 @@ import {useSession} from "@/app/ctx";
 
 
 export default function RecipePage() {
-    const { title, ingredients, preparationTime, instructions } = useLocalSearchParams();
+    const { title, ingredients, preparationTime, instructions, readonly } = useLocalSearchParams();
+    const isReadOnly = readonly === "true";
     const [isModalOpen, setModalOpen] = useState(false);
     const { updateUser, getUser, hasUser } = useSession();
 
@@ -102,48 +103,50 @@ export default function RecipePage() {
             <ScrollView style={{borderColor: '#ffffff', borderWidth: 1, backgroundColor: '#141414', borderRadius: 10}}>
                 <Text style={styles.description}>{instructions}</Text>
             </ScrollView>
-            <View style={{flexDirection: 'row',justifyContent: 'flex-end'}}>
-                <Text
-                    style={styles.savebutton}
-                    onPress={() => {
-                        router.push({
-                            pathname: "/(app)/editrecipe",
-                            params: { title, ingredients, preparationTime, instructions },
-                        });
-                    }}
-                >
-                    Edit
-                </Text>
-                <Text
-                    style={styles.savebutton}
-                    onPress={() => {
-                        setModalOpen(true);
-                    }}
-                >
-                    Delete
-                </Text>
-                <Modal transparent={true} visible={isModalOpen} animationType="fade" onRequestClose={() => setModalOpen(false)}>
-                    <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+            {!isReadOnly && (
+                <View style={{flexDirection: 'row',justifyContent: 'flex-end'}}>
+                    <Text
+                        style={styles.savebutton}
+                        onPress={() => {
+                            router.push({
+                                pathname: "/(app)/editrecipe",
+                                params: { title, ingredients, preparationTime, instructions },
+                            });
+                        }}
+                    >
+                        Edit
+                    </Text>
+                    <Text
+                        style={styles.savebutton}
+                        onPress={() => {
+                            setModalOpen(true);
+                        }}
+                    >
+                        Delete
+                    </Text>
+                    <Modal transparent={true} visible={isModalOpen} animationType="fade" onRequestClose={() => setModalOpen(false)}>
                         <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
-                            <Text style={{color: '#ffffff', fontSize: 24}}>Delete this recipe?</Text>
+                            <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+                                <Text style={{color: '#ffffff', fontSize: 24}}>Delete this recipe?</Text>
+                            </View>
+                            <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
+                                <Text
+                                    style={styles.savebuttontext}
+                                    onPress={() => {
+                                        deleteRecipe(title as string);
+                                        setModalOpen(false);
+                                    }}
+                                >
+                                    Confirm
+                                </Text>
+                                <Text style={styles.savebuttontext} onPress={() => setModalOpen(false)}>
+                                    Cancel
+                                </Text>
+                            </View>
                         </View>
-                        <View style={{flex:1, justifyContent:'center', alignItems: 'center', backgroundColor: "#000000"}}>
-                            <Text
-                                style={styles.savebuttontext}
-                                onPress={() => {
-                                    deleteRecipe(title as string);
-                                    setModalOpen(false);
-                                }}
-                            >
-                                Confirm
-                            </Text>
-                            <Text style={styles.savebuttontext} onPress={() => setModalOpen(false)}>
-                                Cancel
-                            </Text>
-                        </View>
-                    </View>
-                </Modal>
-            </View>
+                    </Modal>
+                </View>
+            )}
             <StatusBar style="light" backgroundColor={"#000000"}/>
         </View>
     );

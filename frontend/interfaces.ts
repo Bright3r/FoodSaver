@@ -30,14 +30,10 @@ export interface Recipe {
     instructions: string[],
 };
 
-export interface Meal {
+export interface MealPlan {
     recipe: Recipe,
     date: Date,
 };
-
-export interface MealPlan {
-    meals: Meal[],
-}
 
 export interface SelectListItem {
     key:string,

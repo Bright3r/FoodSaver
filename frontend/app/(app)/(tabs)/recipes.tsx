@@ -26,7 +26,7 @@ export default function Recipes() {
                 onPress={() => {
                     router.push({
                         pathname: "/recipe",
-                        params: { title, ingredients, preparationTime, instructions },
+                        params: { title, ingredients, preparationTime, instructions, readonly: "false" },
                     });
                 }}>
                 {title}
