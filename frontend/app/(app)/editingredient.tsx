@@ -34,65 +34,32 @@ export default function IngredientPage() {
     const today = new Date();
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate()+1);
-    const originalName = ingredient?.name;
     const router = useRouter();
     const {getUser, updateUser} = useSession();
 
-
-    // const saveIngredient = async (
-    // ingredient:Ingredient, expiration:Date, isEdit:boolean, originalName?:string): Promise<void> => {
-    //     try {
-    //         if (user) {
-    //             let inventory = user.inventory;
-    //
-    //             if (isEdit && originalName) {
-    //                 inventory = inventory.filter((i: Product) => i.name !== originalName);
-    //             }
-    //             console.log(expiration);
-    //
-    //             inventory.push({
-    //                 name: ingredient.name,
-    //                 qty: 1,
-    //                 purchaseDate: purchased, // User should be able to set their own purchase date.
-    //                 expirationDate: expiration,
-    //                 purchaseDate: Date,
-    //                 expirationDate: Date,
-    //             });
-    //
-    //             user.inventory = inventory;
-    //             const response = await updateUser();
-    //             if (response.success) {
-    //                 alert(isEdit ? "Item updated!" : "Item added to inventory!");
-    //                 router.push({
-    //                     pathname: './inventory',
-    //                     params: { key: Date.now().toString() }
-    //                 });
-    //             } else {
-    //                 console.error("Failed to save item", response.message);
-    //             }
-    //         } else {
-    //             console.error('Failed to save item - Internal Error');
-    //         }
-    //
-    //     } catch (error) {
-    //         console.error("Failed to save item", error);
-    //     }
-    // };
+    const params = useLocalSearchParams();
+    const originalName = params.itemName ? JSON.parse(params.itemName as string) : null;
 
     const saveIngredient = async (ingredient:Product, originalName:string): Promise<void> => {
-        if(ingredient.name !== "") {
+        if (ingredient.name !== "") {
             try {
                 let user = await getUser();
                 if (user) {
-                    // Get inventory without edited item
-                    let newInventory = user.inventory.filter(i => i.name !== originalName);
-                    // Add edited item to new inventory
-                    newInventory.push(ingredient);
+                    // Get inventory with edited ingredient
+                    const newInventory = user.inventory.map(item => {
+                        return item.name === originalName ? { ...ingredient } : item;
+                    }
+                    )
+                    // console.log("New inventory: ", newInventory);
+                    // console.log(ingredient);
+                    console.log("Original Name: ", originalName);
 
                     // Update user's inventory
                     user.inventory = newInventory;
+
                     const response = await updateUser(user);
                     if (response.success) {
+                        console.log("ITEM EDITED!");
                         alert("Item added to inventory!");
                         router.replace("./inventory");
                     } else {
@@ -124,49 +91,20 @@ export default function IngredientPage() {
 
     const onChanged = (text:string) => {
         if(ingredient) {
-            ingredient.qty = Number(text.replace(/[^0-9]/g, ''));
+            setIngredient({ ...ingredient, qty: Number(text.replace(/[^0-9]/g, ''))})
         }
     }
 
     useEffect(() => {
-        // const getIngredient = async (itemData: string | string[]) => {
-        //     setLoading(true);
-        //     if(user) {
-        //         if (itemData) {
-        //             console.log("Loading ingredient from itemData");
-        //             const parsedItem = JSON.parse(itemData as string);
-        //             setIngredient({
-        //                 name: parsedItem.name,
-        //                 description: parsedItem.description ?? "Unknown description",
-        //                 nutritionGrade: parsedItem.nutritionGrade ?? "Unknown",
-        //                 imageUrl: parsedItem.imageUrl ?? ''
-        //             });
-        //             setItemName(parsedItem.name);
-        //             setItemDesc(parsedItem.description);
-        //             setExpirationDate(parsedItem.expirationDate);
-        //             setPurchased(parsedItem.purchaseDate);
-        //         }
-        //         else {
-        //             console.error("No scannedData or itemData.");
-        //         }
-        //
-        //         setLoading(false);
-        //     }
-        //     else{
-        //         router.replace("/sign-in")
-        //     }
-        // };
         const getIngredient = async () => {
             let user = await getUser();
             if (user) {
                 setLoading(true);
                 var itemInfo = user.inventory.find((element) => element.name === JSON.parse(itemName as string))
                 if(itemInfo) {
-                    itemInfo.purchaseDate = new Date(itemInfo.purchaseDate)
-                    itemInfo.expirationDate = new Date(itemInfo.expirationDate)
                     setIngredient(itemInfo);
-                    setFormattedPurchase(formatDate(itemInfo.purchaseDate));
-                    setFormattedExpiry(formatDate(itemInfo.expirationDate));
+                    setFormattedPurchase(formatDate(new Date(itemInfo.purchaseDate)));
+                    setFormattedExpiry(formatDate(new Date(itemInfo.expirationDate)));
                 }
                 setLoading(false);
             } else {
@@ -189,7 +127,7 @@ export default function IngredientPage() {
                         <DismissibleTextInput
                             style={styles.name}
                             placeholder="Ingredient name"
-                            onChangeText={val => ingredient.name = val}
+                            onChangeText={val => setIngredient({ ...ingredient, name: val })}
                             multiline
                             submitBehavior="blurAndSubmit"
                             placeholderTextColor={"#696969"}
@@ -234,7 +172,7 @@ export default function IngredientPage() {
                     >
                         <DismissibleTextInput
                             style={styles.description}
-                            onChangeText={val => ingredient.description = val}
+                            onChangeText={val => setIngredient({ ...ingredient, description: val })}
                             multiline={true}
                             textAlignVertical='top'
                             submitBehavior='blurAndSubmit'
@@ -296,12 +234,12 @@ export default function IngredientPage() {
                                         onChange={(event, selectedDate) => {
                                             if (selectedDate) {
                                                 if(isExpiry) {
-                                                    ingredient.expirationDate = selectedDate;
-                                                    setFormattedExpiry(formatDate(ingredient.expirationDate) as string);
+                                                    setIngredient({ ...ingredient, expirationDate: selectedDate });
+                                                    setFormattedExpiry(formatDate(selectedDate) as string);
                                                 }
                                                 else if(isPurchase) {
-                                                    ingredient.purchaseDate = selectedDate;
-                                                    setFormattedPurchase(formatDate(ingredient.purchaseDate) as string);
+                                                    setIngredient({ ...ingredient, purchaseDate: selectedDate });
+                                                    setFormattedPurchase(formatDate(selectedDate) as string);
                                                 }
                                             }
                                             if(event.type === "dismissed" || event.type === "set") {
@@ -330,12 +268,12 @@ export default function IngredientPage() {
                                                 onChange={(event, selectedDate) => {
                                                     if (selectedDate) {
                                                         if(isExpiry) {
-                                                            ingredient.expirationDate = selectedDate;
-                                                            setFormattedExpiry(formatDate(ingredient.expirationDate) as string);
+                                                            setIngredient({ ...ingredient, expirationDate: selectedDate });
+                                                            setFormattedExpiry(formatDate(selectedDate) as string);
                                                         }
                                                         else if(isPurchase) {
-                                                            ingredient.purchaseDate = selectedDate;
-                                                            setFormattedPurchase(formatDate(ingredient.purchaseDate) as string);
+                                                            setIngredient({ ...ingredient, purchaseDate: selectedDate });
+                                                            setFormattedPurchase(formatDate(selectedDate) as string);
                                                         }
                                                     }
                                                     if(event.type === "dismissed" || event.type === "set") {
