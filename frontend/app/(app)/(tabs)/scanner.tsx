@@ -10,7 +10,7 @@ export default function Scanner() {
   const [scanned, setScanned] = useState(false);
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(true); // Set to true so camera starts automatically
-  const {user} = useSession()
+  const {getUser, hasUser} = useSession()
 
   const router = useRouter();
 
@@ -21,7 +21,7 @@ export default function Scanner() {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
     };
-    if(user) {
+    if(hasUser()) {
       getCameraPermissions();
     }
     else{

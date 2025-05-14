@@ -36,7 +36,7 @@ export default function IngredientPage() {
     tomorrow.setDate(tomorrow.getDate()+1);
     const originalName = ingredient?.name;
     const router = useRouter();
-    const {user, updateUser} = useSession();
+    const {getUser, updateUser} = useSession();
 
 
     // const saveIngredient = async (
@@ -79,23 +79,19 @@ export default function IngredientPage() {
     //     }
     // };
 
-    const saveIngredient = async (
-        ingredient:Product, originalName:string): Promise<void> => {
+    const saveIngredient = async (ingredient:Product, originalName:string): Promise<void> => {
         if(ingredient.name !== "") {
             try {
+                let user = await getUser();
                 if (user) {
-                    //find the ingredient and change its attributes
-                    for (var i = 0; i < user.inventory.length; i++) {
-                        if (user.inventory[i].name === originalName) {
-                            user.inventory[i].name = ingredient.name;
-                            user.inventory[i].qty = ingredient.qty;
-                            user.inventory[i].description = ingredient.description;
-                            user.inventory[i].nutritionGrade = ingredient.nutritionGrade;
-                            user.inventory[i].purchaseDate = ingredient.purchaseDate;
-                            user.inventory[i].expirationDate = ingredient.expirationDate;
-                        }
-                    }
-                    const response = await updateUser();
+                    // Get inventory without edited item
+                    let newInventory = user.inventory.filter(i => i.name !== originalName);
+                    // Add edited item to new inventory
+                    newInventory.push(ingredient);
+
+                    // Update user's inventory
+                    user.inventory = newInventory;
+                    const response = await updateUser(user);
                     if (response.success) {
                         alert("Item added to inventory!");
                         router.replace("./inventory");
@@ -161,6 +157,7 @@ export default function IngredientPage() {
         //     }
         // };
         const getIngredient = async () => {
+            let user = await getUser();
             if (user) {
                 setLoading(true);
                 var itemInfo = user.inventory.find((element) => element.name === JSON.parse(itemName as string))

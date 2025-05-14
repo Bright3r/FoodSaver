@@ -10,7 +10,7 @@ import {useSession} from "@/app/ctx";
 export default function RecipePage() {
     const { title, ingredients, preparationTime, instructions } = useLocalSearchParams();
     const [isModalOpen, setModalOpen] = useState(false);
-    const { updateUser, user } = useSession();
+    const { updateUser, getUser, hasUser } = useSession();
 
     const deleteRecipe = async(recipeTitle:string): Promise<void> => {
         // try {
@@ -62,18 +62,19 @@ export default function RecipePage() {
         //     console.error("Failed to delete recipe", error);
         // }
         try{
+            let user = await getUser();
             if (user){
                 user.recipes = user.recipes.filter((item: { title: string; }) => item.title !== recipeTitle);
-            }
 
-            // send update to server
-            const response = await updateUser();
-            if (!response.success) {
-                console.error("Failed to delete recipe", response.message);
-            }
+                // send update to server
+                const response = await updateUser(user);
+                if (!response.success) {
+                    console.error("Failed to delete recipe", response.message);
+                }
 
-            // refresh inventory
-            router.replace('/recipes');
+                // refresh inventory
+                router.replace('/recipes');
+            }
         } catch (error) {
             console.error("Failed to delete recipe", error);
         }
@@ -81,7 +82,7 @@ export default function RecipePage() {
 
     useFocusEffect(
         useCallback(() => {
-            if(!user){
+            if(!hasUser()){
                 router.replace("/sign-in");
             }
         }, [])

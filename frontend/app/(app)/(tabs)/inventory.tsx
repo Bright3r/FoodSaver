@@ -1,18 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Text, View, StyleSheet, FlatList, TouchableOpacity, Alert, Animated, Modal } from 'react-native';
-import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router'
+import { Text, View, StyleSheet, FlatList, TouchableOpacity, Alert, Modal } from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useSession } from '../../ctx';
-import {StatusBar} from "expo-status-bar";
+import { StatusBar } from "expo-status-bar";
 import { Product } from '@/interfaces';
-import {SERVER_URI} from "@/const"
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function Inventory() {
-    const { updateUser, refreshUser, user } = useSession();
+    const { updateUser, getUser, hasUser } = useSession();
     const [inventory, setInventory] = useState<Product[]>([]);
     const [expiredItems, setExpired] = useState<Product[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [isLoaded, setIsLoaded] = useState<boolean>(false);
+    const [loading, setLoading] = useState(true);
     const [expandedItems, setExpandedItems] = useState<{ [key: string]: boolean }>({});
     const [showExpirationModal, setShowExpirationModal] = useState(false);
     const router = useRouter();
@@ -20,13 +18,12 @@ export default function Inventory() {
     const fetchInventory = async () => {
         try {
             setLoading(true);
-            await refreshUser();
-            if (user && user.inventory) {
-                // Convert string dates to Date objects
+            const user = await getUser();
+            if (user?.inventory) {
                 const formattedInventory = user.inventory.map((item: any) => ({
                     ...item,
                     purchaseDate: new Date(item.purchaseDate),
-                    expirationDate: new Date(item.expirationDate)
+                    expirationDate: new Date(item.expirationDate),
                 }));
                 setInventory(formattedInventory);
             }
@@ -35,22 +32,39 @@ export default function Inventory() {
             Alert.alert('Error', 'Failed to load inventory');
         } finally {
             setLoading(false);
-            setIsLoaded(true);
         }
     };
 
-    // Initial data fetch
+    const getExpiringItems = async () => {
+        const user = await getUser();
+        if (!user) return;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const twoDaysFromNow = new Date(today);
+        twoDaysFromNow.setDate(today.getDate() + 2);
+
+        const allItems = [...(user.inventory || []), ...(user.expired || [])];
+        const expiring = allItems
+            .filter(item => {
+                const expirationDate = new Date(item.expirationDate);
+                expirationDate.setHours(0, 0, 0, 0);
+                return expirationDate <= twoDaysFromNow;
+            })
+            .sort((a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime());
+
+        setExpired(expiring);
+    };
+
     useEffect(() => {
-        if(user) {
+        if (hasUser()) {
             fetchInventory();
             getExpiringItems();
-        }
-        else{
+        } else {
             router.replace("/sign-in");
         }
     }, []);
 
-    // Refresh data when page comes into focus
     useFocusEffect(
         useCallback(() => {
             fetchInventory();
@@ -65,32 +79,15 @@ export default function Inventory() {
         }));
     };
 
-    const getExpiringItems = () => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const twoDaysFromNow = new Date(today);
-        twoDaysFromNow.setDate(today.getDate() + 2);
-        if(user) {
-            setExpired([...user.inventory, ...user.expired]
-                .filter(item => {
-                    const expirationDate = new Date(item.expirationDate);
-                    expirationDate.setHours(0, 0, 0, 0);
-                    return expirationDate <= twoDaysFromNow;
-                })
-                .sort((a, b) => new Date(a.expirationDate).getTime() - new Date(b.expirationDate).getTime()))
-        }
-
-    };
-
     const getExpirationStatus = (expirationDate: Date) => {
         const today = new Date();
         const expDate = new Date(expirationDate);
         const diffTime = expDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays <= 0) {
             return { status: 'Expired', color: '#ff4444' };
-        } else if (diffDays === -1) {
+        } else if (diffDays === 1) {
             return { status: 'Expires today', color: '#ffaa00' };
         } else {
             return { status: `Expires in ${diffDays} days`, color: '#ffaa00' };
@@ -106,8 +103,6 @@ export default function Inventory() {
     };
 
     const handleEditItem = (item: Product) => {
-        console.log("Editing item...");
-        // console.log(item.imageUrl);
         router.push({
             pathname: '../editingredient',
             params: {
@@ -118,28 +113,27 @@ export default function Inventory() {
 
     const handleDeleteItem = async (item: Product) => {
         try {
-            if (user) {
-                // Update local state
-                let newInventory = inventory.filter(i => i.name !== item.name)
-                setInventory(newInventory);
+            const user = await getUser();
+            if (!user) return;
 
-                // Update server
-                user.inventory = newInventory;
-                const response = await updateUser();
-                if (!response.success) {
-                    console.error("Failed to delete item", response.message);
-                    Alert.alert('Error', 'Failed to delete item');
-                }
+            const newInventory = inventory.filter(i => i.name !== item.name);
+            setInventory(newInventory);
+
+            user.inventory = newInventory;
+            const response = await updateUser(user);
+
+            if (!response.success) {
+                console.error("Failed to delete item", response.message);
+                Alert.alert('Error', 'Failed to delete item');
             }
         } catch (error) {
             console.error("Failed to delete item", error);
             Alert.alert('Error', 'Failed to delete item');
         }
 
-        // Refresh inventory to restore the item
         await fetchInventory();
     };
-      
+
     return (
         <View style={styles.container}>
             {loading ? (
@@ -212,7 +206,6 @@ export default function Inventory() {
                         <Ionicons name="add-outline" size={24} color="#ffffff" />
                     </TouchableOpacity>
 
-                    {/* Floating Action Button */}
                     <TouchableOpacity 
                         style={styles.fab}
                         onPress={() => setShowExpirationModal(true)}
@@ -221,7 +214,6 @@ export default function Inventory() {
                         <Text style={styles.fabText}>Expiring</Text>
                     </TouchableOpacity>
 
-                    {/* Expiration Modal */}
                     <Modal
                         visible={showExpirationModal}
                         transparent={true}

@@ -10,7 +10,7 @@ import {Recipe} from "@/interfaces"
 
 
 export default function Recipes() {
-    const { refreshUser, user } = useSession();
+    const { getUser, hasUser } = useSession();
     const [recipeList, setRecipeList] = useState<Recipe[]>([]);
     const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
     const [searchText, setSearchText] = useState("");
@@ -58,6 +58,7 @@ export default function Recipes() {
         // } catch (error) {
         //     console.error("Failed to get recipes", error);
         // }
+        let user = await getUser();
         if(user){
             setRecipeList(user.recipes);
             setAllRecipes(user.recipes);
@@ -75,8 +76,7 @@ export default function Recipes() {
     useFocusEffect(
         useCallback(() => {
             setSearchText("");
-            refreshUser();
-            if(user){
+            if(hasUser()){
                 getRecipes();
             }
             else{

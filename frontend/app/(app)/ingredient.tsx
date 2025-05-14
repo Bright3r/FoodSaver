@@ -57,12 +57,13 @@ export default function IngredientPage() {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate()+1);
     const router = useRouter();
-    const {user, updateUser} = useSession();
+    const {getUser, updateUser} = useSession();
 
     const saveIngredient = async (
     ingredient:Product): Promise<void> => {
         if(ingredient.name !== "") {
             try {
+                let user = await getUser();
                 if (user) {
                     let inventory = user.inventory;
 
@@ -82,7 +83,7 @@ export default function IngredientPage() {
                         user.inventory = inventory;
                         console.log(user.inventory);
                     }
-                    const response = await updateUser();
+                    const response = await updateUser(user);
                     console.log(user.inventory);
                     if (response.success) {
                         alert("Item added to inventory!");
@@ -116,6 +117,7 @@ export default function IngredientPage() {
 
     useEffect(() => {
         const getIngredient = async (scannedData: string | string[]) => {
+            let user = await getUser();
             if(user) {
                 setLoading(true);
                 //scanned ingredient

@@ -10,7 +10,7 @@ import {useSession} from "@/app/ctx";
 
 
 export default function RecipeSuggestions() {
-    const { user } = useSession();
+    const { getUser, hasUser } = useSession();
     const [suggestedRecipes, setSuggestedRecipes] = useState<Recipe[]>([]);
     const [isLoading, setLoading] = useState(false);
     const [inventory, setInventory] = useState<SelectListItem[]>([]);
@@ -35,6 +35,7 @@ export default function RecipeSuggestions() {
     ;
 
     const getInventory = async (): Promise<void> => {
+        let user = await getUser();
         if (!user) return;
         setLoading(true);
         setInventory([]);
@@ -69,7 +70,7 @@ export default function RecipeSuggestions() {
 
     useFocusEffect(
         useCallback(() => {
-            if(user) {
+            if(hasUser()) {
                 getInventory();
             }
             else{

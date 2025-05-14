@@ -5,11 +5,11 @@ import { useSession } from '../ctx';
 import {StatusBar} from "expo-status-bar";
 
 export default function Index() {
-    const {session} = useSession();
+    const { hasUser } = useSession();
     const router = useRouter();
 
     useEffect(() => {
-        if (session === null || session === undefined) {
+        if (!hasUser()) {
             router.replace("/sign-in")
         } else {
             router.replace("/inventory");

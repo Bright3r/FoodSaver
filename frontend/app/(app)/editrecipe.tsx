@@ -8,7 +8,7 @@ import DismissibleTextInput from "../components/dismissableTextInput";
 
 
 export default function EditRecipePage() {
-    const { updateUser, user } = useSession();
+    const { updateUser, getUser, hasUser } = useSession();
     const { title, ingredients, preparationTime, instructions } = useLocalSearchParams();
     const [recipeTitle, setRecipeTitle] = useState(title as string);
     const [recipeIngredients, setRecipeIngredients] = useState(ingredients as string);
@@ -82,6 +82,7 @@ export default function EditRecipePage() {
         // } catch (error) {
         //     console.error("Failed to save recipe", error);
         // }
+        let user = await getUser();
         if(user){
             for(var i = 0; i<user.recipes.length; i++){
                 if(user.recipes[i].title === oldTitle){
@@ -104,7 +105,7 @@ export default function EditRecipePage() {
             console.log(`Recipe edited: ${recipeTitle}`);
             console.log(`${user.username}'s recipes: ${JSON.stringify(user.recipes)}`);
             alert("Recipe edited!");
-            const response = await updateUser();
+            const response = await updateUser(user);
             if (!response.success) {
                 console.error("Failed to save item", response.message);
             }
@@ -118,7 +119,7 @@ export default function EditRecipePage() {
 
     useFocusEffect(
         useCallback(() => {
-            if(!user){
+            if(!hasUser()){
                 router.replace("/sign-in");
             }
         }, [])
