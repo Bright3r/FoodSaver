@@ -31,6 +31,7 @@ export default function IngredientPage() {
     const [isExpiry, setIsExpiry] = useState(false);
     const [formattedPurchase, setFormattedPurchase] = useState("");
     const [formattedExpiry, setFormattedExpiry] = useState("");
+    const [tempDate, setTempDate] = useState<Date>(new Date());
     const today = new Date();
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate()+1);
@@ -221,7 +222,7 @@ export default function IngredientPage() {
                             Platform.OS === 'android' ? (
                                 <>
                                     <DateTimePicker
-                                        value={isExpiry ? ingredient.expirationDate : ingredient.purchaseDate}
+                                        value={isExpiry ? new Date(ingredient.expirationDate) : new Date(ingredient.purchaseDate)}
                                         mode="date"
                                         display="calendar"
                                         //set minimum date based on whether we are dealing with expiration date or purchase date
@@ -255,50 +256,44 @@ export default function IngredientPage() {
                                 <Modal transparent={true} animationType="fade" visible={showDatePicker}>
                                     <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#000000aa'}}>
                                         <View style={{ backgroundColor: '#222', margin: 20, borderRadius: 10, padding: 20 }}>
-                                            <DateTimePicker
-                                                value={isExpiry ? ingredient.expirationDate : ingredient.purchaseDate}
-                                                mode="date"
-                                                display="spinner"
-                                                minimumDate={isExpiry ? tomorrow : new Date(1960, 0, 1)}
-                                                maximumDate={isExpiry ? new Date(2100, 0, 1) : today}
-                                                onChange={(event, selectedDate) => {
-                                                    if (selectedDate) {
-                                                        if(isExpiry) {
-                                                            setIngredient({ ...ingredient, expirationDate: selectedDate });
-                                                            setFormattedExpiry(formatDate(selectedDate) as string);
-                                                        }
-                                                        else if(isPurchase) {
-                                                            setIngredient({ ...ingredient, purchaseDate: selectedDate });
-                                                            setFormattedPurchase(formatDate(selectedDate) as string);
-                                                        }
-                                                    }
-                                                    if(event.type === "dismissed" || event.type === "set") {
-                                                        if(isExpiry) {
-                                                            setIsExpiry(false);
-                                                            setShowDatePicker(false);
-                                                        }
-                                                        else if(isPurchase) {
-                                                            setIsPurchase(false);
-                                                            setShowDatePicker(false);
-                                                        }
-                                                    }
-                                                }}
-                                            />
-                                            {/*<Button*/}
-                                            {/*    title="Done"*/}
-                                            {/*    onPress={() => {*/}
-                                            {/*        setExpirationDate(tempDate); // Apply date only when confirmed*/}
-                                            {/*        setShowDatePicker(false);*/}
-                                            {/*        setModalOpen(true); // Open confirmation modal*/}
-                                            {/*    }}*/}
-                                            {/*/>*/}
-                                            {/*<Button*/}
-                                            {/*    title="Cancel"*/}
-                                            {/*    onPress={() => {*/}
-                                            {/*        setShowDatePicker(false);*/}
-                                            {/*    }}*/}
-                                            {/*    color="#999"*/}
-                                            {/*/>*/}
+                                        <DateTimePicker
+                                            value={isExpiry ? new Date(ingredient.expirationDate) : new Date(ingredient.purchaseDate)}
+                                            mode="date"
+                                            display="spinner"
+                                            minimumDate={isExpiry ? tomorrow : new Date(1960, 0, 1)}
+                                            maximumDate={isExpiry ? new Date(2100, 0, 1) : today}
+                                            onChange={(event, selectedDate) => {
+                                                if (selectedDate) {
+                                                    setTempDate(selectedDate);
+                                                }
+                                            }}
+                                        />
+
+                                        <Button
+                                            title="Done"
+                                            onPress={() => {
+                                                if (isExpiry) {
+                                                    setIngredient({ ...ingredient, expirationDate: tempDate });
+                                                    setFormattedExpiry(formatDate(tempDate));
+                                                    setIsExpiry(false);
+                                                } else if (isPurchase) {
+                                                    setIngredient({ ...ingredient, purchaseDate: tempDate });
+                                                    setFormattedPurchase(formatDate(tempDate));
+                                                    setIsPurchase(false);
+                                                }
+                                                setShowDatePicker(false);
+                                            }}
+                                        />
+                                        <Button
+                                            title="Cancel"
+                                            onPress={() => {
+                                                setShowDatePicker(false);
+                                                setIsExpiry(false);
+                                                setIsPurchase(false);
+                                            }}
+                                            color="#999"
+                                        />
+
                                         </View>
                                     </View>
                                 </Modal>
