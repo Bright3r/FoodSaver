@@ -29,16 +29,10 @@ export default function MealPlanner() {
 
     const router = useRouter();
 
-    const checkSession = async () => {
-        const user = await getUser();
-        return user;
-    }
-
-    const user = getUser();
 
     // Utility: Safely parse 'YYYY-MM-DD' or Date to a proper Date object
     const normalizeToDate = (value: any): Date | null => {
-        if (value instanceof Date && !isNaN(value.getTime())) return value;
+        if (isValidDate(value)) return value;
 
         if (typeof value === 'string') {
             const parsed = new Date(value);
@@ -46,21 +40,16 @@ export default function MealPlanner() {
         }
 
         return null;
-        };
+    };
 
-        // Utility: Validate a date object
-        const isValidDate = (date: any): date is Date => {
+    // Utility: Validate a date object
+    const isValidDate = (date: any): date is Date => {
         return date instanceof Date && !isNaN(date.getTime());
     };
 
 
 
     useEffect(() => {
-            // if (hasUser()) {
-            //     getMealPlans();
-            // } else {
-            //     router.replace('/sign-in');
-            // }
             const fetchRecipes = async () => {
                 const user = await getUser();
                 if (user?.recipes?.length) {
@@ -91,22 +80,18 @@ export default function MealPlanner() {
     const [selectedDate, setSelectedDate] = useState<string>(getTodayDateString());
 
     const openAddModal = () => {
-        console.log(`Index: ${editingIndex}`);
         setEditingIndex(null);
         setSelectedRecipe(null);
         setModalDate(parseLocalDate(selectedDate));
         setModalVisible(true);
-        console.log(`Index: ${editingIndex}`);
     }
 
     const openEditModal = (index: number) => {
-        console.log(`Index: ${index}`);
         const plan = filteredPlans[index];
         setEditingIndex(index);
         setSelectedRecipe(plan.recipe);
         setModalDate(plan.date instanceof Date ? plan.date : parseLocalDate(plan.date));
         setModalVisible(true);
-        console.log(`Index: ${index}`);
     }
 
 
@@ -125,10 +110,6 @@ export default function MealPlanner() {
                 // Formatting meal plan dates here
                 console.log(`Formatting meal plans...`);
                 const formattedMealPlans: MealPlan[] = [];
-                // const formattedMealPlans = user.mealPlans.map((item: any) => ({
-                //     ...item,
-                //     date: item.date.toString().split('T')[0]
-                // }));
 
                 user.mealPlans.forEach((item: any, i: number) => {
                     const parsedDate = normalizeToDate(item.date);

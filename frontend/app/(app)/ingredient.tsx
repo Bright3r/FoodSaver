@@ -61,9 +61,10 @@ export default function IngredientPage() {
 
     const saveIngredient = async (
     ingredient:Product): Promise<void> => {
+        const user = await getUser();
+
         if(ingredient.name !== "") {
             try {
-                let user = await getUser();
                 if (user) {
                     let inventory = user.inventory;
 
@@ -117,7 +118,8 @@ export default function IngredientPage() {
 
     useEffect(() => {
         const getIngredient = async (scannedData: string | string[]) => {
-            let user = await getUser();
+            const user = await getUser();
+
             if(user) {
                 setLoading(true);
                 //scanned ingredient
@@ -364,13 +366,6 @@ export default function IngredientPage() {
                                         onPress={() => {
                                             if (saving) return;
                                             setSaving(true);
-                                            // const updatedIngredient: Product = {
-                                            //     ...ingredient,
-                                            //     name: itemName || ingredient.name,
-                                            //     description: itemDesc || ingredient.description,
-                                            //     imageUrl: ingredient.imageUrl,
-                                            //     nutritionGrade: ingredient.nutritionGrade
-                                            // };
                                             saveIngredient(ingredient);
                                             setSaving(false);
                                             setModalOpen(false);
@@ -407,7 +402,7 @@ const styles = StyleSheet.create({
         padding: 10
     },
     nameContainer: {
-        height: 150,
+        height: 55,
         padding: 10,
         justifyContent: 'center',
         borderColor: '#ffffff',
@@ -485,15 +480,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     button: {
-       color: '#fff',
-       borderWidth: 1,
-       borderColor: '#ffffff',
-       borderRadius: 10,
-       textAlign: 'center',
-       textAlignVertical: 'center',
-       width: 110,
-       height: 40,
-       padding: 10,
+        color: '#fff',
+        borderWidth: 1,
+        borderColor: '#ffffff',
+        borderRadius: 10,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        width: 110,
+        height: 40,
+        padding: 10,
         marginBottom: 10
     },
     datebutton: {

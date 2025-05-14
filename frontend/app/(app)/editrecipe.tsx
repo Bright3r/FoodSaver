@@ -1,7 +1,7 @@
 import {useSession} from "@/app/ctx";
 import React, {useCallback, useState} from "react";
 import {router, useFocusEffect, useLocalSearchParams} from "expo-router";
-import {ScrollView, StyleSheet, Text, View} from "react-native";
+import {ScrollView, StyleSheet, Text, View, KeyboardAvoidingView, Platform} from "react-native";
 import {StatusBar} from "expo-status-bar";
 import DismissibleTextInput from "../components/dismissableTextInput";
 
@@ -162,9 +162,11 @@ export default function EditRecipePage() {
                 >
                 </DismissibleTextInput>
             </ScrollView>
-            <ScrollView
-                style={{borderColor: '#ffffff', borderWidth: 1, backgroundColor: '#141414', borderRadius: 10, marginBottom:10, height: '40%'}}
-                contentContainerStyle={{flexGrow: 1}}
+            <KeyboardAvoidingView
+                style={{borderColor: '#ffffff', borderWidth: 1, backgroundColor: '#141414', borderRadius: 10, marginBottom:10, height: '40%', flex: 1}}
+                contentContainerStyle={{flexGrow: 3}}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
             >
                 <DismissibleTextInput
                     style={styles.description}
@@ -173,11 +175,11 @@ export default function EditRecipePage() {
                     multiline={true}
                     onChangeText={val => setRecipeInstructions(val)}
                     placeholderTextColor={"#696969"}
-                    textAlignVertical={"top"}
+                    textAlignVertical={Platform.OS === 'ios' ? 'top' : 'center'}
                     value={recipeInstructions as string}
                 >
                 </DismissibleTextInput>
-            </ScrollView>
+            </KeyboardAvoidingView>
             <View style={{flexDirection: 'row',justifyContent: 'flex-end'}}>
                 <Text
                     style={styles.savebutton}
@@ -216,7 +218,7 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         padding: 10,
         flex: 1,
-        width: '80%'
+        width: 350
     },
     buttonContainer: {
         borderWidth: 1,

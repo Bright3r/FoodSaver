@@ -165,7 +165,7 @@ export default function IngredientPage() {
                     <KeyboardAvoidingView
                         style={styles.descriptionContainer}
                         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                        keyboardVerticalOffset={Platform.OS === 'ios' ? 25 : 0}
+                        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
                     >
                         <DismissibleTextInput
                             style={styles.description}
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
         padding: 10
     },
     nameContainer: {
-        height: 150,
+        height: 55,
         padding: 10,
         justifyContent: 'center',
         borderColor: '#ffffff',
