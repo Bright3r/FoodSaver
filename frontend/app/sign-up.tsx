@@ -80,13 +80,17 @@ export default function SignUp() {
                     style={{color: '#fff', borderWidth: 1, borderColor: '#ffffff',borderRadius: 10, textAlign: 'center', textAlignVertical: 'center', width: 110, height: 40}}
                     onPress={() => {
                         //username and password checking handled on the frontend
-                        if(username=="") {
-                            console.error('Signup failed: No Username');
+                        if (username=="") {
+                            setErrorMsg('Signup failed: No Username');
                         }
-                        else if(password=="") {
-                            console.error('Signup failed: No Password');
+                        else if (password=="") {
+                            setErrorMsg('Signup failed: No Password');
+                        }
+                        else if (password.length < 8) {
+                            setErrorMsg('Signup failed: Password must be at least 8 characters long');
                         }
                         else {
+                            setErrorMsg('');
                             handleSubmit(firstname, lastname, username, password).then();
                         }
                     }}>
