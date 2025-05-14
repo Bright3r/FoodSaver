@@ -235,12 +235,6 @@ export default function MealPlanner() {
         }
     }
 
-    const mealsByDate = mealPlans.reduce((acc, plan) => {
-        const dateKey = new Date(plan.date).toISOString().split('T')[0];
-        if (!acc[dateKey]) acc[dateKey] = [];
-        acc[dateKey].push(plan);
-        return acc;
-    }, {} as { [key: string]: MealPlan[] });
 
 
     return (
@@ -282,11 +276,25 @@ export default function MealPlanner() {
                                 <TouchableOpacity
                                     key={index}
                                     style={styles.card}
-                                    onPress={() => openEditModal(index)}
+                                    onPress={() => {
+                                        router.push({
+                                            pathname: '/recipe',
+                                            params: {
+                                                title: plan.recipe.title,
+                                                ingredients: plan.recipe.ingredients,
+                                                preparationTime: plan.recipe.preparationTime,
+                                                instructions: plan.recipe.instructions,
+                                                readonly: "true"
+                                            }
+                                        })
+                                    }}
                                     onLongPress={() => deleteMeal(index)}
                                 >
                                     <Text style={styles.title}>{plan.recipe.title}</Text>
-                                    <Text style={styles.itemDetail}>Tap to edit. Long tap to delete.</Text>
+                                    <Text style={styles.itemDetail}>Tap to view recipe. Long tap to delete.</Text>
+                                    <View style={{marginHorizontal: 155}}>
+                                        <Ionicons name={'create'} color={'#ffffff'} size={24} onPress={() => openEditModal(index)} />
+                                    </View>
                                 </TouchableOpacity>
                             ))
                         ) : (
@@ -308,12 +316,6 @@ export default function MealPlanner() {
                                 <Text style={styles.modalTitle}>
                                     {editingIndex !== null ? "Edit" : "Add" } Meal Plan
                                 </Text>
-
-                                {/* {selectedRecipe && (
-                                    <Text style={{ color: '#0f0', marginBottom: 8 }}>
-                                        Selected: {selectedRecipe.title}
-                                    </Text>
-                                )} */}
                                 
                                 <Text style={styles.text}>Select Recipe:</Text>
 
