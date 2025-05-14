@@ -46,13 +46,9 @@ export default function IngredientPage() {
                 let user = await getUser();
                 if (user) {
                     // Get inventory with edited ingredient
-                    const newInventory = user.inventory.map(item => {
-                        return item.name === originalName ? { ...ingredient } : item;
-                    }
+                    const newInventory = user.inventory.map(item =>
+                        item.name === originalName ? { ...ingredient } : item
                     )
-                    // console.log("New inventory: ", newInventory);
-                    // console.log(ingredient);
-                    console.log("Original Name: ", originalName);
 
                     // Update user's inventory
                     user.inventory = newInventory;
