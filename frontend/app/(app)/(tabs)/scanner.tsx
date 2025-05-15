@@ -1,50 +1,63 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { CameraView, Camera } from "expo-camera";
-import { useRouter } from 'expo-router';
-import {StatusBar} from "expo-status-bar";
-import {useSession} from "@/app/ctx";
+import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useSession } from "@/app/ctx";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Scanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [scanned, setScanned] = useState(false);
-  const [scannedData, setScannedData] = useState<string | null>(null);
-  const [cameraActive, setCameraActive] = useState(true); // Set to true so camera starts automatically
-  const {getUser, hasUser} = useSession()
-
+  const [cameraActive, setCameraActive] = useState(true);
+  const { getUser, hasUser } = useSession();
   const router = useRouter();
 
-  let scanSuccess = false;
+  // Persist across renders
+  const scanSuccess = useRef(false);
 
   useEffect(() => {
     const getCameraPermissions = async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
     };
-    if(hasUser()) {
+
+    if (hasUser()) {
       getCameraPermissions();
-    }
-    else{
-      router.replace("/sign-in")
+    } else {
+      router.replace("/sign-in");
     }
   }, []);
 
-  async function handleBarcodeScanned ({ type, data }: { type: string; data: string }) {
-    if (scanSuccess) return;
-    scanSuccess = true;
+  // Handle screen focus to activate/deactivate camera
+  useFocusEffect(
+    useCallback(() => {
+      setCameraActive(true);
+      return () => {
+        setCameraActive(false);
+      };
+    }, [])
+  );
 
-    //setScanned(true);
-    setScannedData(data);
-    //setCameraActive(false);
+  async function handleBarcodeScanned({
+    type,
+    data,
+  }: {
+    type: string;
+    data: string;
+  }) {
+    if (scanSuccess.current) return;
+    scanSuccess.current = true;
 
     console.log(`Scanned barcode type: ${type}\nData: ${data}`);
 
     router.push({
-      pathname: '../ingredient',
+      pathname: "../ingredient",
       params: { scannedData: data },
     });
 
-    setTimeout(() => scanSuccess = false, 1000);
+    setTimeout(() => {
+      scanSuccess.current = false;
+    }, 1000);
   }
 
   if (hasPermission === null) {
@@ -60,7 +73,7 @@ export default function Scanner() {
         <CameraView
           style={StyleSheet.absoluteFillObject}
           facing="back"
-          onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+          onBarcodeScanned={handleBarcodeScanned}
           barcodeScannerSettings={{
             barcodeTypes: [
               "ean13",
@@ -76,7 +89,7 @@ export default function Scanner() {
           }}
         />
       )}
-      <StatusBar style="light" backgroundColor={"#000000"}/>
+      <StatusBar style="light" backgroundColor="#000000" />
     </View>
   );
 }
@@ -86,10 +99,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  scannedText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 10,
   },
 });
