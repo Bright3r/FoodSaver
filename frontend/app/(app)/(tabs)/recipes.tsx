@@ -88,7 +88,7 @@ export default function Recipes() {
     return (
         <View style={styles.container}>
             <DismissibleTextInput
-                style={{color: '#fff', width: "auto", height: 50, borderWidth: 1, borderColor: '#ffffff', borderRadius: 10, marginBottom: 5, backgroundColor: '#1a1a1a'}}
+                style={{color: '#fff', width: "auto", height: 50, borderWidth: 1, borderColor: '#ffffff', borderRadius: 10, marginBottom: 5, paddingLeft: 10, backgroundColor: '#1a1a1a'}}
                 placeholder="Search"
                 placeholderTextColor="#696969"
                 onChangeText={val=>{
