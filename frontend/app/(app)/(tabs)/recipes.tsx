@@ -37,27 +37,6 @@ export default function Recipes() {
 
     //implement recipe endpoint
     const getRecipes = async () => {
-        // try {
-        //     const uri =
-        //         Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-        //         SERVER_URI;
-        //     await fetch(`http://${uri}/api/user?username=${username}`, {
-        //         method: 'GET',
-        //         headers: {'Content-Type': 'application/json'}
-        //     })
-        //     .then(res => res.json())
-        //     .then((data: any) => {
-        //         console.log("Retrieving recipes...");
-        //         setRecipeList(data.recipes ?? []);
-        //         setAllRecipes(data.recipes ?? []);
-        //
-        //         // DEBUG: inventoryStr - for checking the correctness of response data.
-        //         const recipesStr = JSON.stringify(data.recipes);
-        //         console.log(`Recipes: ${recipesStr}`);
-        //     });
-        // } catch (error) {
-        //     console.error("Failed to get recipes", error);
-        // }
         let user = await getUser();
         if(user){
             setRecipeList(user.recipes);
@@ -66,11 +45,21 @@ export default function Recipes() {
 
     };
 
-    //implement recipe endpoint
-    const searchRecipes = async (searchText:string) => {
+    const searchRecipes = async (text: string) => {
+        const query = text.toLowerCase();
+
         //searches based on substrings in the title or ingredients
-        setRecipeList(allRecipes.filter((item: { title: string; ingredients: string[]; }) => item.title.toLowerCase().includes(searchText) || item.ingredients.some(e => e.toLowerCase().includes(searchText))));
+        const filtered = allRecipes.filter((recipe) => {
+            const titleMatch = recipe.title.toLowerCase().includes(query);
+            const ingredientMatch = recipe.ingredients.some(ingredient =>
+            typeof ingredient === 'string' && ingredient.toLowerCase().includes(query)
+            );
+            return titleMatch || ingredientMatch;
+        });
+
+        setRecipeList(filtered);
     };
+
 
 
     useFocusEffect(
