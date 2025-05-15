@@ -388,7 +388,7 @@ export default function IngredientPage() {
                     <Text style={styles.button} onPress={() => router.back()}>Back</Text>
                 </>
             )}
-            <StatusBar style="light" backgroundColor={"#000000"}/>
+            <StatusBar style="light" backgroundColor={"#000000"} translucent={false}/>
         </View>
     );
 }

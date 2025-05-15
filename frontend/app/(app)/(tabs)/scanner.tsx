@@ -9,7 +9,7 @@ import { useFocusEffect } from "@react-navigation/native";
 export default function Scanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [cameraActive, setCameraActive] = useState(true);
-  const { getUser, hasUser } = useSession();
+  const { hasUser } = useSession();
   const router = useRouter();
 
   // Persist across renders
@@ -89,7 +89,7 @@ export default function Scanner() {
           }}
         />
       )}
-      <StatusBar style="light" backgroundColor="#000000" />
+      <StatusBar style="light" backgroundColor={"#000000"} translucent={false}/>
     </View>
   );
 }

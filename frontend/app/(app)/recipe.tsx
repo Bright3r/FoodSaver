@@ -147,7 +147,7 @@ export default function RecipePage() {
                     </Modal>
                 </View>
             )}
-            <StatusBar style="light" backgroundColor={"#000000"}/>
+            <StatusBar style="light" backgroundColor={"#000000"} translucent={false}/>
         </View>
     );
 }

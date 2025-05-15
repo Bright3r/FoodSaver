@@ -16,7 +16,7 @@ export default function SignOutScreen() {
                 }}>
                 Log Out
             </Text>
-            <StatusBar style="light" backgroundColor={"#000000"}/>
+            <StatusBar style="light" backgroundColor={"#000000"} translucent={false}/>
         </View>
     );
 }

@@ -189,7 +189,7 @@ export default function AddSuggestedRecipePage() {
                     Save
                 </Text>
             </View>
-            <StatusBar style="light" backgroundColor={"#000000"}/>
+            <StatusBar style="light" backgroundColor={"#000000"} translucent={false}/>
         </View>
     );
 }
