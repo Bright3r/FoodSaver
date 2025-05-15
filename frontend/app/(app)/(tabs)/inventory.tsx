@@ -132,6 +132,7 @@ export default function Inventory() {
         }
 
         await fetchInventory();
+        getExpiringItems();
     };
 
     return (
