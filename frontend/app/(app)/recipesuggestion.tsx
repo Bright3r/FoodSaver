@@ -14,7 +14,7 @@ export default function RecipeSuggestions() {
     const [suggestedRecipes, setSuggestedRecipes] = useState<Recipe[]>([]);
     const [isLoading, setLoading] = useState(false);
     const [inventory, setInventory] = useState<SelectListItem[]>([]);
-    const [selected, setSelected] = React.useState("");
+    const [selected, setSelected] = useState<string[]>([]);
 
     type ItemProps = {title: string, ingredients: string, preparationTime: number, instructions: string, };
 
@@ -37,32 +37,9 @@ export default function RecipeSuggestions() {
     const getInventory = async (): Promise<void> => {
         let user = await getUser();
         if (!user) return;
+
         setLoading(true);
         setInventory([]);
-        // try {
-        //     const uri = Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ?? SERVER_URI;
-        //     await fetch(`http://${uri}/api/user?username=${username}`, {
-        //         method: 'GET',
-        //         headers: {"Content-Type": "application/json"}
-        //     })
-        //         .then(res => res.json())
-        //         .then((data: any) => {
-        //             console.log("Retrieving inventory...");
-        //             let ingredients = data.inventory.map((item:IngredientInventory) => {return {key: item.name, value: item.name}})
-        //             setInventory(ingredients)
-        //
-        //             // DEBUG: inventoryStr - for checking the correctness of response data.
-        //             const inventoryStr = JSON.stringify(data.inventory);
-        //             console.log(`Inventory: ${inventoryStr}`);
-        //         });
-        //
-        //     setLoading(false);
-        //
-        //     console.log(`Inventory retrieved!`);
-        //     console.log(`Table successfully loaded!`);
-        // } catch (error) {
-        //     console.error("Failed to get inventory", error);
-        // }
         let ingredients = user.inventory.map((item:Product) => {return {key: item.name, value: item.name}})
         setInventory(ingredients);
         setLoading(false);
@@ -80,7 +57,7 @@ export default function RecipeSuggestions() {
     );
 
 
-    const suggestionSearch = async (ingredients:string) => {
+    const suggestionSearch = async (ingredients: string[]) => {
         try {
             setLoading(true);
             console.log(`Ingredients: ${ingredients}`);
@@ -97,6 +74,9 @@ export default function RecipeSuggestions() {
                     const recipesStr = JSON.stringify(data);
                     console.log(`Recipes: ${recipesStr}`);
                 });
+            
+            // reset search ingredients
+            setSelected([]);
             setLoading(false);
         } catch (error) {
             console.error("Failed to get recipes", error);
@@ -156,7 +136,7 @@ export default function RecipeSuggestions() {
                 <View style={styles.container}>
                     <Text
                         style={{color: '#fff',fontSize: 30,textAlign: 'center', textAlignVertical: 'center',}}>
-                        {"Processing..."}
+                        {"Generating Recipes..."}
                     </Text>
                 </View>
             </Modal>
