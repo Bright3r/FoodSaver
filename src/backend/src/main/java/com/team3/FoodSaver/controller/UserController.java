@@ -22,11 +22,11 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
-	@CrossOrigin(origins = "*")
-	@GetMapping
-	public User getUserByUsername(@RequestParam String username) {
-		return userService.getUserByUsername(username);
-	}
+//	@CrossOrigin(origins = "*")
+//	@GetMapping
+//	public User getUserByUsername(@RequestParam String username) {
+//		return userService.getUserByUsername(username);
+//	}
 	
 	@PostMapping
 	public ResponseEntity<String> createUser(@RequestBody User user) {
