@@ -151,7 +151,7 @@ export default function RecipeSuggestions() {
                 data={suggestedRecipes}
                 renderItem={({item}) => <SuggestedItem title={item.title} ingredients={item.ingredients.join("\n")} preparationTime={item.preparationTime} instructions={item.instructions.join("\n")}/>}
             />
-            <StatusBar style="light" backgroundColor={"#000000"}/>
+            <StatusBar style="light" backgroundColor={"#000000"} translucent={false}/>
             <Modal transparent={true} visible={isLoading} animationType="fade">
                 <View style={styles.container}>
                     <Text

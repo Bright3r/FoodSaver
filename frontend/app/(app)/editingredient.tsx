@@ -2,18 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from '../ctx';
 import { 
     View, 
-    Text, 
-    TextInput, 
+    Text,
     StyleSheet, 
-    Image, 
-    Alert,
-    Button, 
-    Keyboard,
+    Image,
+    Button,
     Modal,
     Platform,
-    Dimensions, 
     KeyboardAvoidingView } from 'react-native';
-import {useRouter, useLocalSearchParams, router} from 'expo-router';
+import {useRouter, useLocalSearchParams} from 'expo-router';
 import {StatusBar} from "expo-status-bar";
 import DateTimePicker from '@react-native-community/datetimepicker'
 import DismissibleTextInput from '../components/dismissableTextInput';
@@ -342,7 +338,7 @@ export default function IngredientPage() {
                     <Text style={styles.button} onPress={() => router.back()}>Back</Text>
                 </>
             )}
-            <StatusBar style="light" backgroundColor={"#000000"}/>
+            <StatusBar style="light" backgroundColor={"#000000"} translucent={false}/>
         </View>
     );
 }

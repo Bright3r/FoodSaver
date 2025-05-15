@@ -265,7 +265,7 @@ export default function Inventory() {
                     </Modal>
                 </>
             )}
-            <StatusBar style="light" backgroundColor={"#000000"}/>
+            <StatusBar style="light" backgroundColor={"#000000"} translucent={false}/>
         </View>
     );
 }

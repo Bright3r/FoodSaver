@@ -114,7 +114,7 @@ export default function Recipes() {
                 <Ionicons name="bulb-outline" size={24} color="#ffffff" />
                 <Text style={styles.fabText}>Suggestions</Text>
             </TouchableOpacity>
-            <StatusBar style="light" backgroundColor={"#000000"}/>
+            <StatusBar style="light" backgroundColor={"#000000"} translucent={false}/>
         </View>
     );
 }
