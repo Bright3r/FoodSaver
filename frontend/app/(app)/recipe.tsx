@@ -14,54 +14,6 @@ export default function RecipePage() {
     const { updateUser, getUser, hasUser } = useSession();
 
     const deleteRecipe = async(recipeTitle:string): Promise<void> => {
-        // try {
-        //     //set endpoint once it is created
-        //     const uri =
-        //         Constants.expoConfig?.hostUri?.split(':').shift()?.concat(':8083') ??
-        //         SERVER_URI;
-        //     const response = await fetch(`http://${uri}/api/user?username=${username}`, {
-        //         method: 'GET',
-        //         headers: {'Content-Type': 'application/json'}
-        //     })
-        //
-        //     console.log(`OK? ${response.ok}`);
-        //     console.log(`Username: ${username}`);
-        //
-        //     if (response.ok) {
-        //         const responseData = await response.json();
-        //         let responseStr = JSON.stringify(responseData);
-        //
-        //
-        //         console.log(`Updating recipes...`);
-        //         let updatedData = JSON.parse(responseStr);
-        //
-        //         updatedData['recipes'] = updatedData['recipes'].filter((item: { title: string; }) => item.title !== recipeTitle);
-        //         const response2 = await fetch(`http://${uri}/api/user`, {
-        //             method: 'PUT',
-        //             headers: {"Content-Type": "application/json"},
-        //             body: JSON.stringify(updatedData)
-        //         })
-        //         console.log(`Recipe deleted: ${recipeTitle}`);
-        //         console.log(`${username}'s recipes: ${JSON.stringify(updatedData['recipes'])}`);
-        //         alert("Recipe deleted!");
-        //
-        //         console.log(response2.status);
-        //         console.log(`OK? ${response2.ok}`);
-        //
-        //         if (response2.ok) {
-        //             console.log(`${username}'s recipes successfully updated`);
-        //             router.replace('/recipes');
-        //         } else {
-        //             console.error("Failed to delete recipe", await response.text());
-        //         }
-        //
-        //         router.replace('/recipes');
-        //     } else {
-        //         console.error('Failed to delete recipe', await response.text());
-        //     }
-        // } catch (error) {
-        //     console.error("Failed to delete recipe", error);
-        // }
         try{
             let user = await getUser();
             if (user){

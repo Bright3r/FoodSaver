@@ -221,8 +221,7 @@ export default function IngredientPage() {
                                         value={isExpiry ? new Date(ingredient.expirationDate) : new Date(ingredient.purchaseDate)}
                                         mode="date"
                                         display="calendar"
-                                        //set minimum date based on whether we are dealing with expiration date or purchase date
-                                        minimumDate={isExpiry ? tomorrow : new Date(1960, 0, 1)}
+                                        minimumDate={new Date(2000, 0, 1)}
                                         maximumDate={isExpiry ? new Date(2100, 0, 1) : today}
                                         onChange={(event, selectedDate) => {
                                             if (selectedDate) {
@@ -256,7 +255,7 @@ export default function IngredientPage() {
                                             value={isExpiry ? new Date(ingredient.expirationDate) : new Date(ingredient.purchaseDate)}
                                             mode="date"
                                             display="spinner"
-                                            minimumDate={isExpiry ? tomorrow : new Date(1960, 0, 1)}
+                                            minimumDate={new Date(2000, 0, 1)}
                                             maximumDate={isExpiry ? new Date(2100, 0, 1) : today}
                                             onChange={(event, selectedDate) => {
                                                 if (selectedDate) {

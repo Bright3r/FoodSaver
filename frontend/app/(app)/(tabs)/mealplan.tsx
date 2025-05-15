@@ -281,9 +281,9 @@ export default function MealPlanner() {
                                             pathname: '/recipe',
                                             params: {
                                                 title: plan.recipe.title,
-                                                ingredients: plan.recipe.ingredients,
+                                                ingredients: plan.recipe.ingredients.join("\n"),
                                                 preparationTime: plan.recipe.preparationTime,
-                                                instructions: plan.recipe.instructions,
+                                                instructions: plan.recipe.instructions.join("\n"),
                                                 readonly: "true"
                                             }
                                         })
