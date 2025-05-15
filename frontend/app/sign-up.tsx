@@ -39,7 +39,7 @@ export default function SignUp() {
     return (
         <View style={styles.container}>
             <Text
-                style={{color: '#ffffff', fontSize: 30, marginTop: 100}}
+                style={{color: '#ffffff', fontSize: 30, marginTop: 100, marginBottom: 20}}
             >
                 Sign Up
             </Text>

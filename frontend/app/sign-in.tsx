@@ -72,12 +72,13 @@ const styles = StyleSheet.create({
     title: {
         color: '#ffffff',
         fontSize: 50,
-        marginBottom: 80,
+        marginBottom: 60,
         marginTop: 100,
     },
     subtitle: {
         color: '#ffffff',
         fontSize: 30,
+        marginBottom: 20,
     },
     input: {
         color: '#fff',
