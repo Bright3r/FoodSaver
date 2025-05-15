@@ -1,1 +1,0 @@
-export const SERVER_URI = "https://chasedbarman.com"
